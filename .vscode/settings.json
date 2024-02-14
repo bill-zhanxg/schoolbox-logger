@@ -4,5 +4,6 @@
         "odata",
         "progressbar",
         "Schoolbox"
-    ]
+    ],
+    "typescript.tsdk": "node_modules\\typescript\\lib"
 }

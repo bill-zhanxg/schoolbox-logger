@@ -1,12 +1,10 @@
 import { XataAdapter } from '@auth/xata-adapter';
 import NextAuth from 'next-auth';
 import AzureADProvider from 'next-auth/providers/azure-ad';
-import { XataClient } from './xata';
-
-const client = new XataClient();
+import { getXataClient } from './xata';
 
 export const { handlers, auth, signIn, signOut, unstable_update } = NextAuth({
-	adapter: XataAdapter(client),
+	adapter: XataAdapter(getXataClient()),
 	session: {
 		strategy: 'database',
 	},

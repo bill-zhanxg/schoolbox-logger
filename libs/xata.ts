@@ -71,6 +71,37 @@ const tables = [
     ],
     revLinks: [{ column: "session", table: "nextauth_users_sessions" }],
   },
+  {
+    name: "users",
+    columns: [
+      { name: "accountEnabled", type: "bool" },
+      { name: "ageGroup", type: "string" },
+      { name: "businessPhones", type: "multiple" },
+      { name: "city", type: "string" },
+      { name: "createdDateTime", type: "datetime" },
+      { name: "department", type: "string" },
+      { name: "displayName", type: "string" },
+      { name: "givenName", type: "string" },
+      { name: "lastPasswordChangeDateTime", type: "datetime" },
+      { name: "mail", type: "email" },
+      { name: "mailNickname", type: "string" },
+      { name: "mobilePhone", type: "string" },
+      { name: "onPremisesDistinguishedName", type: "string" },
+      { name: "onPremisesSamAccountName", type: "string" },
+      { name: "onPremisesSyncEnabled", type: "bool" },
+      { name: "postalCode", type: "string" },
+      { name: "streetAddress", type: "string" },
+      { name: "surname", type: "string" },
+      { name: "userType", type: "string" },
+    ],
+  },
+  {
+    name: "portraits",
+    columns: [
+      { name: "mail", type: "email" },
+      { name: "portrait", type: "file" },
+    ],
+  },
 ] as const;
 
 export type SchemaTables = typeof tables;
@@ -96,6 +127,12 @@ export type NextauthUsersSessionsRecord = NextauthUsersSessions & XataRecord;
 export type NextauthSessions = InferredTypes["nextauth_sessions"];
 export type NextauthSessionsRecord = NextauthSessions & XataRecord;
 
+export type Users = InferredTypes["users"];
+export type UsersRecord = Users & XataRecord;
+
+export type Portraits = InferredTypes["portraits"];
+export type PortraitsRecord = Portraits & XataRecord;
+
 export type DatabaseSchema = {
   nextauth_users: NextauthUsersRecord;
   nextauth_accounts: NextauthAccountsRecord;
@@ -103,6 +140,8 @@ export type DatabaseSchema = {
   nextauth_users_accounts: NextauthUsersAccountsRecord;
   nextauth_users_sessions: NextauthUsersSessionsRecord;
   nextauth_sessions: NextauthSessionsRecord;
+  users: UsersRecord;
+  portraits: PortraitsRecord;
 };
 
 const DatabaseClient = buildClient();
