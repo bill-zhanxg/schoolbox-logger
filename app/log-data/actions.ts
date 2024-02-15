@@ -1,17 +1,19 @@
 'use server';
 
+import { auth } from '@/libs/auth';
 import { getXataClient } from '@/libs/xata';
 import { AuthProviderCallback, Client } from '@microsoft/microsoft-graph-client';
-import * as cheerio from 'cheerio';
-import Queue from 'queue';
+import { Unauthorized } from '../globalComponents/Unauthorized';
 // import { User } from '@microsoft/microsoft-graph-types';
 
 const xata = getXataClient();
 
 export async function azure(formData: FormData) {
+	const session = await auth();
+	if (!session) return Unauthorized;
 	const azureToken = formData.get('azure-token');
 	const schoolboxDomain = formData.get('schoolbox-domain');
-	const schoolboxToken = formData.get('schoolbox-token');
+	const schoolboxCookie = formData.get('schoolbox-cookie');
 	const client = Client.init({
 		authProvider: (callback: AuthProviderCallback) => {
 			callback(null, azureToken as string);
@@ -35,74 +37,83 @@ export async function azure(formData: FormData) {
 	// 	});
 	// }
 
-	const portraitList = [];
-	const q = new Queue();
+	fetch('http://localhost:8000/scan-portraits', {
+		method: 'POST',
+		body: JSON.stringify({ azureToken, schoolboxDomain, schoolboxCookie }),
+		headers: {
+			Authorization: process.env.AUTH_SECRET,
+			'Content-Type': 'application/json',
+		},
+	}).then(console.log);
 
-	for (let i = 8200; i < 8300; i++) {
-		q.push((cb) => {
-			if (!cb) throw new Error('Callback is not defined');
+	// const portraitList = [];
+	// const q = new Queue();
 
-			fetch(`${schoolboxDomain}/search/user/${i}`, {
-				headers: {
-					authorization: 'Bearer ' + schoolboxToken,
-				},
-			})
-				.then(async (res) => {
-					if (res.ok) {
-						const $ = cheerio.load(await res.text());
-						const email = $('#content .content dd a').text();
-						if (email.trim()) {
-							console.log(email);
-							// No need authorization for this request
-							fetch(`${schoolboxDomain}/portrait.php?id=${i}`)
-								.then(async (res) => {
-									console.log(res.status);
-									if (res.ok) {
-										console.log(res.body);
-										// Database action
-										const portrait = await res.blob();
+	// for (let i = 8200; i < 8300; i++) {
+	// 	q.push((cb) => {
+	// 		if (!cb) throw new Error('Callback is not defined');
 
-										xata.db.portraits
-											.create({
-												mail: email,
-												portrait: portrait,
-											})
-											.catch((err) => {
-												// TODO
-												console.log('database error', err);
-											})
-											.finally(() => {
-												cb();
-											});
-									} else {
-										console.log(`Failed getting portrait for ${i}`, res.status);
-										cb();
-									}
-								})
-								.catch((err) => {
-									// TODO
-									console.log(err);
-									cb();
-								});
-						}
-					} else {
-						console.log(res.statusText);
-						cb();
-					}
-				})
-				.catch((err) => {
-					// TODO
-					console.log(err);
-					cb();
-				});
-		});
-	}
+	// 		fetch(`${schoolboxDomain}/search/user/${i}`, {
+	// 			headers: {
+	// 				authorization: 'Bearer ' + schoolboxToken,
+	// 			},
+	// 		})
+	// 			.then(async (res) => {
+	// 				if (res.ok) {
+	// 					const $ = cheerio.load(await res.text());
+	// 					const email = $('#content .content dd a').text();
+	// 					if (email.trim()) {
+	// 						console.log(email);
+	// 						// No need authorization for this request
+	// 						fetch(`${schoolboxDomain}/portrait.php?id=${i}`)
+	// 							.then(async (res) => {
+	// 								console.log(res.status);
+	// 								if (res.ok) {
+	// 									console.log(res.body);
+	// 									// Database action
+	// 									const portrait = await res.blob();
 
-	q.start((err) => {
-		// TODO
-		if (err) throw err;
-		console.log('all done:', q);
-	});
+	// 									xata.db.portraits
+	// 										.create({
+	// 											mail: email,
+	// 											portrait: portrait,
+	// 										})
+	// 										.catch((err) => {
+	// 											// TODO
+	// 											console.log('database error', err);
+	// 										})
+	// 										.finally(() => {
+	// 											cb();
+	// 										});
+	// 								} else {
+	// 									console.log(`Failed getting portrait for ${i}`, res.status);
+	// 									cb();
+	// 								}
+	// 							})
+	// 							.catch((err) => {
+	// 								// TODO
+	// 								console.log(err);
+	// 								cb();
+	// 							});
+	// 					}
+	// 				} else {
+	// 					console.log(res.statusText);
+	// 					cb();
+	// 				}
+	// 			})
+	// 			.catch((err) => {
+	// 				// TODO
+	// 				console.log(err);
+	// 				cb();
+	// 			});
+	// 	});
+	// }
+
+	// q.start((err) => {
+	// 	// TODO
+	// 	if (err) throw err;
+	// 	console.log('all done:', q);
+	// });
 
 	// const crawler = new Crawler({
 	// 	maxConnections: 10,
