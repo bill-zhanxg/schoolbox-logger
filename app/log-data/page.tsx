@@ -1,3 +1,5 @@
+import { chunk } from '@/libs/formatValue';
+import { getXataClient } from '@/libs/xata';
 import { azure } from './actions';
 import { Test } from './components/Test';
 
@@ -9,6 +11,27 @@ export default function LogData() {
 				<input type="text" name="azure-token" placeholder="azure-token" />
 				<input type="text" name="schoolbox-domain" placeholder="schoolbox-domain" />
 				<input type="text" name="schoolbox-cookie" placeholder="schoolbox-cookie" />
+				<button className="btn">test</button>
+			</form>
+			<form
+				action={async () => {
+					'use server';
+					const xata = getXataClient();
+
+					const allPortraits = (await xata.db.portraits.select(['id']).getAll()).map((portrait) => portrait.id);
+					const chunks = chunk(allPortraits);
+					for (const chunk of chunks)
+						await xata.transactions.run(
+							chunk.map((id) => ({
+								delete: {
+									table: 'portraits',
+									id,
+								},
+							})),
+						);
+					console.log('removed all portraits');
+				}}
+			>
 				<button className="btn">test</button>
 			</form>
 			<Test />

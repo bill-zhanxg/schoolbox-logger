@@ -7,10 +7,10 @@ export function Test() {
 			<p>This is a test component.</p>
 			<button
 				className="btn"
-				onClick={() => {
+				onClick={async () => {
 					fetch('http://localhost:8000', {
-                        credentials: 'include',
-                    });
+						credentials: 'include',
+					});
 				}}
 			>
 				Test
