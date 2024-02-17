@@ -13,9 +13,18 @@ export async function azure(formData: FormData) {
 	const schoolboxDomain = formData.get('schoolbox-domain');
 	const schoolboxCookie = formData.get('schoolbox-cookie');
 
-	fetch('http://localhost:8000/scan-portraits', {
+	// fetch('http://localhost:8000/scan-portraits', {
+	// 	method: 'POST',
+	// 	body: JSON.stringify({ schoolboxDomain, schoolboxCookie }),
+	// 	headers: {
+	// 		Authorization: process.env.AUTH_SECRET,
+	// 		'Content-Type': 'application/json',
+	// 	},
+	// }).then(console.log);
+
+	fetch('http://localhost:8000/azure-users', {
 		method: 'POST',
-		body: JSON.stringify({ azureToken, schoolboxDomain, schoolboxCookie }),
+		body: JSON.stringify({ azureToken }),
 		headers: {
 			Authorization: process.env.AUTH_SECRET,
 			'Content-Type': 'application/json',
