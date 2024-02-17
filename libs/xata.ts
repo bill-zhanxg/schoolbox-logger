@@ -100,6 +100,14 @@ const tables = [
     columns: [
       { name: "mail", type: "email" },
       { name: "portrait", type: "file" },
+      { name: "schoolbox_id", type: "int" },
+    ],
+  },
+  {
+    name: "portrait_logs",
+    columns: [
+      { name: "message", type: "text" },
+      { name: "level", type: "string" },
     ],
   },
 ] as const;
@@ -133,6 +141,9 @@ export type UsersRecord = Users & XataRecord;
 export type Portraits = InferredTypes["portraits"];
 export type PortraitsRecord = Portraits & XataRecord;
 
+export type PortraitLogs = InferredTypes["portrait_logs"];
+export type PortraitLogsRecord = PortraitLogs & XataRecord;
+
 export type DatabaseSchema = {
   nextauth_users: NextauthUsersRecord;
   nextauth_accounts: NextauthAccountsRecord;
@@ -142,6 +153,7 @@ export type DatabaseSchema = {
   nextauth_sessions: NextauthSessionsRecord;
   users: UsersRecord;
   portraits: PortraitsRecord;
+  portrait_logs: PortraitLogsRecord;
 };
 
 const DatabaseClient = buildClient();
