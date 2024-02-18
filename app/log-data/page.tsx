@@ -18,30 +18,42 @@ export default function LogData() {
 					'use server';
 					const xata = getXataClient();
 
-					const allPortraits = (await xata.db.portraits.select(['id']).getAll()).map((portrait) => portrait.id);
-					const allPortraitLogs = (await xata.db.portrait_logs.select(['id']).getAll()).map((portrait) => portrait.id);
-					const chunks = chunk(allPortraits);
-					for (const chunk of chunks)
-						await xata.transactions.run(
-							chunk.map((id) => ({
-								delete: {
-									table: 'portraits',
-									id,
-								},
-							})),
-						);
-					console.log('removed all portraits, removing portrait logs');
-					const chunks2 = chunk(allPortraitLogs);
+					// const allPortraits = (await xata.db.portraits.select(['id']).getAll()).map((portrait) => portrait.id);
+					// const allPortraitLogs = (await xata.db.portrait_logs.select(['id']).getAll()).map((portrait) => portrait.id);
+					const allUserHistory = (await xata.db.users_history.select(['id']).getAll()).map((portrait) => portrait.id);
+					// const chunks = chunk(allPortraits);
+					// for (const chunk of chunks)
+					// 	await xata.transactions.run(
+					// 		chunk.map((id) => ({
+					// 			delete: {
+					// 				table: 'portraits',
+					// 				id,
+					// 			},
+					// 		})),
+					// 	);
+					// console.log('removed all portraits, removing portrait logs');
+					// const chunks2 = chunk(allPortraitLogs);
+					// for (const chunk of chunks2)
+					// 	await xata.transactions.run(
+					// 		chunk.map((id) => ({
+					// 			delete: {
+					// 				table: 'portrait_logs',
+					// 				id,
+					// 			},
+					// 		})),
+					// 	);
+					// console.log('removed all portrait logs');
+					const chunks2 = chunk(allUserHistory);
 					for (const chunk of chunks2)
 						await xata.transactions.run(
 							chunk.map((id) => ({
 								delete: {
-									table: 'portrait_logs',
+									table: 'users_history',
 									id,
 								},
 							})),
 						);
-					console.log('removed all portrait logs');
+					console.log('removed all user history');
 				}}
 			>
 				<button className="btn">test</button>
