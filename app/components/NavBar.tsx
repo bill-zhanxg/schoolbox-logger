@@ -27,9 +27,9 @@ const menu: Menu = [
 				href: '/users',
 			},
 			{
-				id: 'log-data-btn',
-				name: 'Log Data',
-				href: '/log-data',
+				id: 'manage-data-btn',
+				name: 'Manage Data',
+				href: '/manage-data',
 			},
 		],
 	},
