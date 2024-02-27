@@ -12,9 +12,9 @@ type Menu = {
 }[];
 const menu: Menu = [
 	{
-		id: 'test-1-btn',
-		name: 'test-1',
-		href: '/test-1',
+		id: 'data-btn',
+		name: 'data',
+		href: '/data',
 	},
 	{
 		id: 'admin-control-btn',
@@ -47,10 +47,10 @@ export function NavBar({ session }: { session: Session }) {
 		session.user.role === 'admin'
 			? menu
 			: menu
-					.filter((item) => !item.admin)
-					.map((item) =>
-						Array.isArray(item.href) ? { ...item, href: item.href.filter((item) => !item.admin) } : item,
-					);
+				.filter((item) => !item.admin)
+				.map((item) =>
+					Array.isArray(item.href) ? { ...item, href: item.href.filter((item) => !item.admin) } : item,
+				);
 
 	return (
 		<>
