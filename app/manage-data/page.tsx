@@ -1,6 +1,7 @@
 import { auth } from '@/libs/auth';
 import { chunk } from '@/libs/formatValue';
 import { getXataClient } from '@/libs/xata';
+import Link from 'next/link';
 import { Unauthorized } from '../globalComponents/Unauthorized';
 
 export default function LogData() {
@@ -12,7 +13,15 @@ export default function LogData() {
 					<div className="flex flex-col items-center gap-2 rounded-xl border-2 border-primary shadow-lg shadow-border-primary p-4 w-full">
 						<h1 className="font-bold">Azure Logging</h1>
 						<p className="text-center">
-							Get the most recent change from Azure, current data will be moved to history table
+							Get the most recent change from Azure, current data will be moved to history table, you can get the API
+							keys from{' '}
+							<Link
+								href="https://developer.microsoft.com/en-us/graph/graph-explorer"
+								className="link link-primary"
+								target="_blank"
+							>
+								Microsoft Graph
+							</Link>
 						</p>
 						<form
 							action={async (formData) => {
