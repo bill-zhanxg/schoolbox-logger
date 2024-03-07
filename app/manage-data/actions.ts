@@ -4,6 +4,7 @@ import { auth } from '@/libs/auth';
 import { backendUrl, chunk } from '@/libs/formatValue';
 import { FormState } from '@/libs/types';
 import { getXataClient } from '@/libs/xata';
+import { revalidatePath } from 'next/cache';
 
 function requestAzureData(azureToken: any) {
 	return fetch(`${backendUrl}azure-users`, {
@@ -43,10 +44,31 @@ export async function fetchDataForm(prevState: FormState, formData: FormData): P
 		let res: Response;
 
 		if (button === 'all') {
-			return {
-				message: 'Success',
-				success: true,
-			};
+			const azure = await requestAzureData(azureToken);
+			const schoolbox = await requestSchoolboxData(schoolboxDomain, schoolboxCookie);
+
+			revalidatePath('/manage-data');
+			if (azure.ok && schoolbox.ok) {
+				return {
+					message: `Both requests were successful. Azure: ${await azure.text()}, Schoolbox: ${await schoolbox.text()}`,
+					success: true,
+				};
+			} else if (!azure.ok && !schoolbox.ok) {
+				return {
+					message: `Both requests failed. Azure: ${await azure.text()}, Schoolbox: ${await schoolbox.text()}`,
+					success: false,
+				};
+			} else if (!azure.ok) {
+				return {
+					message: `Azure request failed: ${await azure.text()}. But Schoolbox request was successful: ${await schoolbox.text()}`,
+					success: false,
+				};
+			} else {
+				return {
+					message: `Schoolbox request failed: ${await schoolbox.text()}. But Azure request was successful: ${await azure.text()}`,
+					success: false,
+				};
+			}
 		} else if (button === 'azure') {
 			res = await requestAzureData(azureToken);
 		} else if (button === 'schoolbox') {
@@ -59,6 +81,7 @@ export async function fetchDataForm(prevState: FormState, formData: FormData): P
 		}
 
 		const resText = await res.text();
+		revalidatePath('/manage-data');
 		if (res.ok) {
 			return {
 				message: resText || 'Success',
@@ -71,6 +94,7 @@ export async function fetchDataForm(prevState: FormState, formData: FormData): P
 			};
 		}
 	} catch (error) {
+		revalidatePath('/manage-data');
 		return {
 			message: (error as Error).message ?? 'An unknown error occurred',
 			success: false,

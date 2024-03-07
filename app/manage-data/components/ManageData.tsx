@@ -31,6 +31,7 @@ export function ManageData() {
 						>
 							Microsoft Graph
 						</Link>
+						. The backend will validate the token after the request.
 					</p>
 					<input type="password" name="azure-token" placeholder="Azure Token" className="input input-bordered w-full" />
 					<Submit value="azure">Get Azure Data</Submit>
@@ -39,7 +40,7 @@ export function ManageData() {
 					<h1 className="font-bold">Schoolbox Logging</h1>
 					<p className="text-center">
 						Get the new batches of Schoolbox data (portraits), it will continue to add documents to the portraits table
-						without removing the previous batch
+						without removing the previous batch. DO NOT ENTER WRONG CREDENTIALS
 					</p>
 					<div className="flex gap-2 w-full">
 						<input
