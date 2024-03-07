@@ -1,6 +1,11 @@
 import { dayjs } from './dayjs';
 import { SearchParams } from './types';
 
+/**
+ * This returns a full URL with ending slash
+ */
+export const backendUrl = new URL(process.env.BACKEND_URL);
+
 export function stringifySearchParam(searchParams: SearchParams): { [key: string]: string | undefined } {
 	for (const key in searchParams) {
 		if (Array.isArray(searchParams[key])) searchParams[key] = searchParams[key]?.[0];
