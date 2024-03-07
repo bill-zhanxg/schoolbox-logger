@@ -30,7 +30,7 @@ export default async function LogData() {
 	return (
 		<div className="flex flex-col gap-6 p-6">
 			<div className="flex flex-col gap-2 w-full bg-base-100 rounded-xl border-2 border-base-200 shadow-lg shadow-base-200 p-4">
-				<h1 className="text-2xl font-bold text-center">Status</h1>
+				<h1 className="text-2xl font-bold text-center">Backend Working Status</h1>
 				{typeof status === 'string' ? (
 					<div role="alert" className="alert alert-error">
 						<FaRegTimesCircle size={20} />
