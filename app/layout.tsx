@@ -55,9 +55,6 @@ export default async function RootLayout({
 												<Link href="/settings">User Settings</Link>
 											</li>
 											<li>
-												<Link href="/changelog">Changelogs</Link>
-											</li>
-											<li>
 												<form
 													className="menu-title !p-0"
 													action={async () => {
