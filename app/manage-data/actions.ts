@@ -5,6 +5,9 @@ import { backendUrl, chunk } from '@/libs/formatValue';
 import { FormState } from '@/libs/types';
 import { getXataClient } from '@/libs/xata';
 import { revalidatePath } from 'next/cache';
+import { AlertType } from '../components/Alert';
+
+const xata = getXataClient();
 
 function requestAzureData(azureToken: any) {
 	return fetch(`${backendUrl}azure-users`, {
@@ -102,37 +105,44 @@ export async function fetchDataForm(prevState: FormState, formData: FormData): P
 	}
 }
 
-export async function clear() {
-	'use server';
-	const xata = getXataClient();
+export async function moveUsersToHistory(): Promise<AlertType> {
+	let isContinue: true | string = true;
+	while (isContinue === true) {
+		const users = await xata.db.users.getMany({ pagination: { size: 1000 } });
+		if (users.length === 0) break;
+		await xata.transactions
+			.run(
+				users.map(({ id, xata, ...data }) => ({
+					insert: {
+						table: 'users_history',
+						record: {
+							...data,
+							user_id: id,
+						},
+					},
+				})),
+			)
+			.catch((err) => (isContinue = `Failed to move users to history: ${err.message}`));
+		await xata.transactions
+			.run(users.map(({ id }) => ({ delete: { table: 'users', id } })))
+			.catch((err) => (isContinue = `Failed to delete users: ${err.message}`));
+	}
 
-	// const allPortraits = (await xata.db.portraits.select(['id']).getAll()).map((portrait) => portrait.id);
-	// const allPortraitLogs = (await xata.db.portrait_logs.select(['id']).getAll()).map((portrait) => portrait.id);
-	const allUserHistory = (await xata.db.users_history.select(['id']).getAll()).map((portrait) => portrait.id);
-	// const chunks = chunk(allPortraits);
-	// for (const chunk of chunks)
-	// 	await xata.transactions.run(
-	// 		chunk.map((id) => ({
-	// 			delete: {
-	// 				table: 'portraits',
-	// 				id,
-	// 			},
-	// 		})),
-	// 	);
-	// console.log('removed all portraits, removing portrait logs');
-	// const chunks2 = chunk(allPortraitLogs);
-	// for (const chunk of chunks2)
-	// 	await xata.transactions.run(
-	// 		chunk.map((id) => ({
-	// 			delete: {
-	// 				table: 'portrait_logs',
-	// 				id,
-	// 			},
-	// 		})),
-	// 	);
-	// console.log('removed all portrait logs');
-	const chunks2 = chunk(allUserHistory);
-	for (const chunk of chunks2)
+	return isContinue === true
+		? {
+				message: 'All users were moved to history',
+				type: 'success',
+		  }
+		: {
+				message: isContinue,
+				type: 'error',
+		  };
+}
+
+export async function resetUsersHistory(): Promise<AlertType> {
+	const userHistory = (await xata.db.portraits.select(['id']).getAll()).map((user) => user.id);
+	const historyChunk = chunk(userHistory);
+	for (const chunk of historyChunk)
 		await xata.transactions.run(
 			chunk.map((id) => ({
 				delete: {
@@ -141,5 +151,65 @@ export async function clear() {
 				},
 			})),
 		);
-	console.log('removed all user history');
+	return {
+		message: 'All user history was removed',
+		type: 'success',
+	};
+}
+
+export async function resetPortraits(): Promise<AlertType> {
+	const allPortraits = (await xata.db.portraits.select(['id']).getAll()).map((portrait) => portrait.id);
+	const chunks = chunk(allPortraits);
+	for (const chunk of chunks)
+		await xata.transactions.run(
+			chunk.map((id) => ({
+				delete: {
+					table: 'portraits',
+					id,
+				},
+			})),
+		);
+
+	return {
+		message: 'All portraits were removed',
+		type: 'success',
+	};
+}
+
+export async function resetPortraitLogs(): Promise<AlertType> {
+	const allPortraitLogs = (await xata.db.portrait_logs.select(['id']).getAll()).map((portraitLog) => portraitLog.id);
+	const chunks = chunk(allPortraitLogs);
+	for (const chunk of chunks)
+		await xata.transactions.run(
+			chunk.map((id) => ({
+				delete: {
+					table: 'portrait_logs',
+					id,
+				},
+			})),
+		);
+
+	return {
+		message: 'All portrait logs were removed',
+		type: 'success',
+	};
+}
+
+export async function resetUserLogs(): Promise<AlertType> {
+	const allUserHistory = (await xata.db.user_logs.select(['id']).getAll()).map((userLog) => userLog.id);
+	const chunks = chunk(allUserHistory);
+	for (const chunk of chunks)
+		await xata.transactions.run(
+			chunk.map((id) => ({
+				delete: {
+					table: 'users_history',
+					id,
+				},
+			})),
+		);
+
+	return {
+		message: 'All user history were removed',
+		type: 'success',
+	};
 }
