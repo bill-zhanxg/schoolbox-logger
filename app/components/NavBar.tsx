@@ -12,9 +12,9 @@ type Menu = {
 }[];
 const menu: Menu = [
 	{
-		id: 'data-btn',
-		name: 'data',
-		href: '/data',
+		id: 'azure-users-btn',
+		name: 'Azure Users',
+		href: '/azure-users',
 	},
 	{
 		id: 'admin-control-btn',
