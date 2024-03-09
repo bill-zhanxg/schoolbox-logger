@@ -161,7 +161,21 @@ function OperationSelect({ filter }: { filter: Filter }) {
 }
 
 function FilterInput({ filter }: { filter: Filter }) {
-	return <input type="text" className="input input-bordered input-sm grow" />;
+	const column = getAzureColumn(filter.name);
+	const columnType = column?.type;
+	return columnType ? (
+		columnType === 'string' || columnType === 'email' || columnType === 'multiple' ? (
+			<DebouncedInput value={filter.value} onChange={() => {}} />
+		) : columnType === 'bool' ? (
+			<input type="button" className="input input-bordered input-sm grow" />
+		) : columnType === 'datetime' ? (
+			<input type="datetime-local" className="input input-bordered input-sm grow" />
+		) : (
+			<input type="text" className="input input-bordered input-sm grow" disabled />
+		)
+	) : (
+		<input type="text" className="input input-bordered input-sm grow" disabled />
+	);
 }
 
 // A debounced input component
@@ -189,5 +203,12 @@ function DebouncedInput({
 		return () => clearTimeout(timeout);
 	}, [value, debounce, onChange]);
 
-	return <input {...props} value={value} onChange={(e) => setValue(e.target.value)} />;
+	return (
+		<input
+			className="input input-bordered input-sm grow"
+			{...props}
+			value={value}
+			onChange={(e) => setValue(e.target.value)}
+		/>
+	);
 }
