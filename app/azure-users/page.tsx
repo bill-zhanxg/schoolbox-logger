@@ -2,6 +2,7 @@ import { stringifySearchParam } from '@/libs/formatValue';
 import { SearchParams } from '@/libs/types';
 import { UsersRecord, getXataClient } from '@/libs/xata';
 import { PageRecordArray, SelectedPick } from '@xata.io/client';
+import Link from 'next/link';
 import { z } from 'zod';
 import { FilterComponent } from './components/Filter';
 import { azureUserColumns } from './types';
@@ -20,7 +21,7 @@ export default async function AzureUsers({ searchParams }: { searchParams: Searc
 					.catch((err) => err.message);
 
 	return (
-		<div className="p-6">
+		<div className="sm:p-6">
 			<h1>data</h1>
 			<FilterComponent />
 			{typeof data === 'string' ? (
@@ -32,8 +33,13 @@ export default async function AzureUsers({ searchParams }: { searchParams: Searc
 						<thead>
 							<tr>
 								<th>Name</th>
-								<th>Job</th>
-								<th>Favorite Color</th>
+								<th>postalCode</th>
+								<th>city</th>
+								<th>mailNickname</th>
+								<th>department</th>
+								<th>accountEnabled</th>
+								<th>createdDateTime</th>
+								<th>userType</th>
 								<th></th>
 							</tr>
 						</thead>
@@ -43,17 +49,29 @@ export default async function AzureUsers({ searchParams }: { searchParams: Searc
 									<td>
 										<div>
 											<div className="font-bold">{user.displayName}</div>
-											<div className="text-sm opacity-50">United States</div>
+											<div className="flex gap-1">
+												<span className="badge badge-ghost badge-sm rounded-sm px-0.5">{user.givenName}</span>
+												<span className="badge badge-ghost badge-sm rounded-sm px-0.5">{user.surname}</span>
+											</div>
 										</div>
 									</td>
+									<td>{user.postalCode ?? '---'}</td>
+									<td>{user.city ?? '---'}</td>
+									<td>{user.mailNickname ?? '---'}</td>
+									<td>{user.department ?? '---'}</td>
 									<td>
-										Zemlak, Daniel and Leannon
-										<br />
-										<span className="badge badge-ghost badge-sm">Desktop Support Technician</span>
+										{user.accountEnabled !== undefined || user.accountEnabled !== null
+											? user.accountEnabled
+												? 'true'
+												: 'false'
+											: '---'}
 									</td>
-									<td>Purple</td>
+									<td>date</td>
+									<td>{user.userType ?? '---'}</td>
 									<th>
-										<button className="btn btn-ghost btn-xs">details</button>
+										<Link href={`/azure-users/${user.id}`} className="btn btn-ghost btn-xs">
+											details
+										</Link>
 									</th>
 								</tr>
 							))}
