@@ -21,6 +21,8 @@ export const { handlers, auth, signIn, signOut, unstable_update } = NextAuth({
 			if (session.user) {
 				session.user.id = user.id;
 				session.user.role = user.role;
+				session.user.timezone = user.timezone;
+				session.user.auto_timezone = user.auto_timezone;
 			}
 			return session;
 		},

@@ -4,6 +4,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { FaHome } from 'react-icons/fa';
 import BarOfProgress from './components/BarOfProgress';
+import { HandleUserTimezone } from './components/HandleUserTimezone';
 import { NavBar } from './components/NavBar';
 import { UserAvatar } from './globalComponents/UserAvatar';
 import './globals.css';
@@ -77,6 +78,7 @@ export default async function RootLayout({
 							</div>
 							{children}
 							<BarOfProgress />
+							{session.user.auto_timezone && <HandleUserTimezone />}
 						</>
 					)
 				) : (

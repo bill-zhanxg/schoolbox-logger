@@ -15,6 +15,8 @@ const tables = [
       { name: "name", type: "string" },
       { name: "image", type: "text" },
       { name: "role", type: "string" },
+      { name: "timezone", type: "string", defaultValue: "Australia/Sydney" },
+      { name: "auto_timezone", type: "bool", defaultValue: "true" },
     ],
     revLinks: [
       { column: "user", table: "nextauth_accounts" },

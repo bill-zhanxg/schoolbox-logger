@@ -60,13 +60,9 @@ export default async function AzureUsers({ searchParams }: { searchParams: Searc
 									<td>{user.mailNickname ?? '---'}</td>
 									<td>{user.department ?? '---'}</td>
 									<td>
-										{user.accountEnabled !== undefined || user.accountEnabled !== null
-											? user.accountEnabled
-												? 'true'
-												: 'false'
-											: '---'}
+										{user.accountEnabled?.toString() ?? '---'}
 									</td>
-									<td>date</td>
+									<td>{user.createdDateTime?.toString()}</td>
 									<td>{user.userType ?? '---'}</td>
 									<th>
 										<Link href={`/azure-users/${user.id}`} className="btn btn-ghost btn-xs">

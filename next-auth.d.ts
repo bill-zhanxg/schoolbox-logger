@@ -7,6 +7,8 @@ interface CustomUser {
 	/** The role of the user. */
 	id: string;
 	role?: role | null;
+	timezone?: string | null;
+	auto_timezone?: boolean | null;
 }
 declare module 'next-auth' {
 	interface Session {
