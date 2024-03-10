@@ -64,7 +64,7 @@ export default async function AzureUsers({ searchParams }: { searchParams: Searc
 									<td>{user.accountEnabled?.toString() ?? '---'}</td>
 									<td>
 										{user.createdDateTime
-											? dayjs.tz(user.createdDateTime, session.user.timezone ?? undefined).format('LT')
+											? dayjs.tz(user.createdDateTime, session.user.timezone ?? undefined).format('L LT')
 											: '---'}
 									</td>
 									<td>{user.userType ?? '---'}</td>
