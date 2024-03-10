@@ -1,7 +1,6 @@
 'use server';
 
 import { auth } from '@/libs/auth';
-import { isTeacher } from '@/libs/checkPermission';
 import { FormState } from '@/libs/types';
 import { getXataClient } from '@/libs/xata';
 import { revalidatePath } from 'next/cache';
@@ -19,8 +18,6 @@ const schema = z.object({
 			})
 			.transform((file) => (file.type === 'application/octet-stream' ? null : file)),
 	),
-	team: z.string().min(1).max(200).nullable(),
-	reset_only_after_visit_weekly_sport: z.literal('true').or(z.literal('false')).or(z.boolean()).nullish(),
 	auto_timezone: z.literal('on').or(z.boolean()).nullish(),
 	timezone: z
 		.string()
@@ -47,12 +44,6 @@ export async function updateProfile(prevState: FormState, formData: FormData): P
 	if (!parse.success) return { success: false, message: parse.error.errors[0].message };
 	const { avatar, ...data } = parse.data;
 
-	if (!isTeacher(session)) {
-		// Don't want students to update their name or email
-		if (session.user.name?.trim()) delete data.name;
-		if (session.user.email?.trim()) delete data.email;
-	}
-
 	let image: string | undefined = undefined;
 	if (avatar) {
 		// Result need to be below 204800 bytes
@@ -62,9 +53,6 @@ export async function updateProfile(prevState: FormState, formData: FormData): P
 			.toBuffer();
 		image = `data:${avatar.type};base64,${result.toString('base64')}`;
 	}
-
-	if (typeof data.reset_only_after_visit_weekly_sport === 'string')
-		data.reset_only_after_visit_weekly_sport = data.reset_only_after_visit_weekly_sport === 'true';
 
 	if (data.auto_timezone === 'on') {
 		data.auto_timezone = true;

@@ -1,3 +1,5 @@
+import { auth } from '@/libs/auth';
+import { dayjs } from '@/libs/dayjs';
 import { stringifySearchParam } from '@/libs/formatValue';
 import { SearchParams } from '@/libs/types';
 import { UsersRecord, getXataClient } from '@/libs/xata';
@@ -7,9 +9,9 @@ import { z } from 'zod';
 import { FilterComponent } from './components/Filter';
 import { azureUserColumns } from './types';
 
-const xata = getXataClient();
-
 export default async function AzureUsers({ searchParams }: { searchParams: SearchParams }) {
+	const session = await auth();
+	if (!session) return null;
 	const filters = parseSearchParamsFilter(searchParams);
 
 	const data: PageRecordArray<Readonly<SelectedPick<UsersRecord, ['*']>>> | string =
@@ -59,10 +61,12 @@ export default async function AzureUsers({ searchParams }: { searchParams: Searc
 									<td>{user.city ?? '---'}</td>
 									<td>{user.mailNickname ?? '---'}</td>
 									<td>{user.department ?? '---'}</td>
+									<td>{user.accountEnabled?.toString() ?? '---'}</td>
 									<td>
-										{user.accountEnabled?.toString() ?? '---'}
+										{user.createdDateTime
+											? dayjs.tz(user.createdDateTime, session.user.timezone ?? undefined).format('LT')
+											: '---'}
 									</td>
-									<td>{user.createdDateTime?.toString()}</td>
 									<td>{user.userType ?? '---'}</td>
 									<th>
 										<Link href={`/azure-users/${user.id}`} className="btn btn-ghost btn-xs">
