@@ -3,28 +3,47 @@ import { dayjs } from '@/libs/dayjs';
 import { stringifySearchParam } from '@/libs/formatValue';
 import { SearchParams } from '@/libs/types';
 import { UsersRecord, getXataClient } from '@/libs/xata';
-import { PageRecordArray, SelectedPick } from '@xata.io/client';
+import { Page, SelectedPick } from '@xata.io/client';
 import Link from 'next/link';
 import { z } from 'zod';
+import { PaginationMenu } from '../globalComponents/PaginationMenu';
 import { FilterComponent } from './components/Filter';
 import { azureUserColumns } from './types';
+
+const xata = getXataClient();
 
 export default async function AzureUsers({ searchParams }: { searchParams: SearchParams }) {
 	const session = await auth();
 	if (!session) return null;
+	const pageSize = 20;
+	const { page } = stringifySearchParam(searchParams);
 	const filters = parseSearchParamsFilter(searchParams);
 
-	const data: PageRecordArray<Readonly<SelectedPick<UsersRecord, ['*']>>> | string =
+	const total = (
+		await xata.db.users.filter(filters).summarize({
+			consistency: 'eventual',
+			summaries: {
+				total: { count: '*' },
+			},
+		})
+	).summaries[0].total;
+	const data: Page<UsersRecord, Readonly<SelectedPick<UsersRecord, ['*']>>> | string =
 		typeof filters === 'string'
 			? filters
-			: await getXataClient()
-					.db.users.filter(filters)
-					.getMany()
+			: await xata.db.users
+					.filter(filters)
+					.getPaginated({
+						consistency: 'eventual',
+						pagination: {
+							offset: page ? (parseInt(page) - 1) * pageSize : 0,
+							size: pageSize,
+						},
+					})
 					.catch((err) => err.message);
 
 	return (
 		<div className="sm:p-6">
-			<h1>data</h1>
+			<h1 className="text-2xl font-bold text-center">Azure Users</h1>
 			<FilterComponent />
 			{typeof data === 'string' ? (
 				<p>{data}</p>
@@ -46,7 +65,7 @@ export default async function AzureUsers({ searchParams }: { searchParams: Searc
 							</tr>
 						</thead>
 						<tbody>
-							{data.map((user) => (
+							{data.records.map((user) => (
 								<tr key={user.id}>
 									<td>
 										<div>
@@ -79,6 +98,7 @@ export default async function AzureUsers({ searchParams }: { searchParams: Searc
 					</table>
 				</div>
 			)}
+			<PaginationMenu totalPages={Math.ceil(total / pageSize)} />
 		</div>
 	);
 }
