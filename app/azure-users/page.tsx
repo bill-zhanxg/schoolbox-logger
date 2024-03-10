@@ -26,18 +26,40 @@ export default async function AzureUsers({ searchParams }: { searchParams: Searc
 			{typeof data === 'string' ? (
 				<p>{data}</p>
 			) : (
-				data.map((user) => (
-					<div key={user.id}>
-						<h2>{user.displayName}</h2>
-						<p>{user.mail}</p>
-						{/* {portriats.map((portrait) => (
-							<div key={portrait.id}>
-								<p>{portrait.schoolbox_id}</p>
-								<img src={'data:image/png;base64,' + portrait.portrait?.base64Content} />
-							</div>
-						))} */}
-					</div>
-				))
+				<div className="overflow-x-auto">
+					<table className="table">
+						{/* head */}
+						<thead>
+							<tr>
+								<th>Name</th>
+								<th>Job</th>
+								<th>Favorite Color</th>
+								<th></th>
+							</tr>
+						</thead>
+						<tbody>
+							{data.map((user) => (
+								<tr key={user.id}>
+									<td>
+										<div>
+											<div className="font-bold">{user.displayName}</div>
+											<div className="text-sm opacity-50">United States</div>
+										</div>
+									</td>
+									<td>
+										Zemlak, Daniel and Leannon
+										<br />
+										<span className="badge badge-ghost badge-sm">Desktop Support Technician</span>
+									</td>
+									<td>Purple</td>
+									<th>
+										<button className="btn btn-ghost btn-xs">details</button>
+									</th>
+								</tr>
+							))}
+						</tbody>
+					</table>
+				</div>
 			)}
 		</div>
 	);

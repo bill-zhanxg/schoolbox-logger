@@ -19,36 +19,24 @@ export function FilterComponent() {
 	const searchParams = useSearchParams();
 	const pathname = usePathname();
 	const router = useRouter();
-	const [filters, setFilters] = useState<Filter[]>([
-		{
-			id: v4(),
-			parentOperator: 'and',
-			name: 'id',
-			operator: 'is',
-			value: '',
-		},
-		{
-			id: v4(),
-			parentOperator: 'or',
-			name: 'id',
-			operator: 'isNot',
-			value: '',
-		},
-		{
-			id: v4(),
-			parentOperator: 'and',
-			name: 'id',
-			operator: 'is',
-			value: '',
-		},
-		{
-			id: v4(),
-			parentOperator: 'and',
-			name: 'id',
-			operator: 'is',
-			value: '',
-		},
-	]);
+	const searchParamsFilter = searchParams.get('filter');
+	let initialFilters;
+	try {
+		initialFilters = searchParamsFilter ? JSON.parse(searchParamsFilter) : undefined;
+	} catch (error) {
+		initialFilters = null;
+	}
+	const [filters, setFilters] = useState<Filter[]>(
+		initialFilters ?? [
+			{
+				id: v4(),
+				parentOperator: 'and',
+				name: 'displayName',
+				operator: 'iContains',
+				value: '',
+			},
+		],
+	);
 
 	const createQueryPathName = useCallback(
 		(newParams: { name: string; value: string }[]) => {
@@ -212,9 +200,12 @@ function OperationSelect({ filter, setFilters }: { filter: Filter; setFilters: D
 	);
 	useEffect(() => {
 		setFilters((filters) => {
-			return setFilterValue(filters, filter, 'operator', operators[0].value);
+			if (!operators.find((operator) => operator.value === filter.operator))
+				return setFilterValue(filters, filter, 'operator', operators[0].value);
+			else return filters;
 		});
-	}, [columnType, filter, operators, setFilters]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [columnType, operators]);
 
 	return (
 		<select
