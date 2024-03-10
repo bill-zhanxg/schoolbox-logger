@@ -44,6 +44,7 @@ export default async function User({ params }: { params: { id: string } }) {
 							width={1000}
 							height={1000}
 							className="object-contain w-full"
+							priority
 						/>
 						<Link href={`/portraits/${user.mail}`} className="btn rounded-t-none btn-primary w-full">
 							View Portrait History
@@ -66,11 +67,7 @@ export default async function User({ params }: { params: { id: string } }) {
 							value={nullishToString(user.onPremisesSamAccountName)}
 							fontSize=""
 						/>
-						<SideBySide
-							title="OPDN"
-							value={nullishToString(user.onPremisesDistinguishedName)}
-							fontSize=""
-						/>
+						<SideBySide title="OPDN" value={nullishToString(user.onPremisesDistinguishedName)} fontSize="" />
 						<SideBySide
 							title="OP Sync Enabled"
 							value={nullishToString(user.onPremisesSyncEnabled?.toString())}
