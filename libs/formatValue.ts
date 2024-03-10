@@ -36,3 +36,11 @@ export function chunk<T>(array: T[], chunkSize = 1000): T[][] {
 	for (let i = 0, len = array.length; i < len; i += chunkSize) R.push(array.slice(i, i + chunkSize));
 	return R;
 }
+
+export function nullishToString(value: string | number | null | undefined): string {
+	return value ? `${value}` : '---';
+}
+
+export function nullishToUndefined<T>(value: T | null | undefined): T | undefined {
+	return value ?? undefined;
+}

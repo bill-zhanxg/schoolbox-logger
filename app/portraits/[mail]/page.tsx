@@ -22,7 +22,7 @@ export default async function PortraitHistory({
 	const { page } = stringifySearchParam(searchParams);
 	const filters = {
 		mail: {
-			$iContains: params.mail,
+			$iContains: decodeURIComponent(params.mail),
 		},
 	};
 
@@ -49,7 +49,7 @@ export default async function PortraitHistory({
 	return (
 		<div className="flex flex-col items-center gap-4 w-full p-6">
 			<div className="flex flex-col gap-4">
-				<h1 className="text-2xl font-bold text-center">Portrait History for {params.mail}</h1>
+				<h1 className="text-2xl font-bold text-center">Portrait History for {decodeURIComponent(params.mail)}</h1>
 				{portraits.records.map((portrait) => (
 					<div key={portrait.id}>
 						<h2 className="text-xl">
