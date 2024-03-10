@@ -5,7 +5,8 @@
         "Kysely",
         "odata",
         "progressbar",
-        "Schoolbox"
+        "Schoolbox",
+        "Xmark"
     ],
     "typescript.tsdk": "node_modules\\typescript\\lib"
 }

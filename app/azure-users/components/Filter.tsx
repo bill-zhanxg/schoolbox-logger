@@ -2,7 +2,8 @@
 
 import { usePathname, useSearchParams } from 'next/navigation';
 import { useRouter } from 'next13-progressbar';
-import { Dispatch, InputHTMLAttributes, SetStateAction, useCallback, useEffect, useState } from 'react';
+import { Dispatch, InputHTMLAttributes, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react';
+import { FaXmark } from 'react-icons/fa6';
 import { v4 } from 'uuid';
 import { azureUserColumns } from '../types';
 
@@ -11,11 +12,10 @@ type Filter = {
 	parentOperator: string;
 	name: string;
 	operator: string;
-	// TODO: Change value to be a type that matches the column type
 	value: string;
 };
 
-export function Filter() {
+export function FilterComponent() {
 	const searchParams = useSearchParams();
 	const pathname = usePathname();
 	const router = useRouter();
@@ -73,7 +73,7 @@ export function Filter() {
 	}, [filters, createQueryPathName, router]);
 
 	return (
-		<div className="flex flex-col gap-2 w-full my-6">
+		<div className="flex flex-col gap-2 w-full my-6 border-2 border-info p-2 rounded-lg">
 			<button
 				className="btn btn-sm"
 				onClick={() =>
@@ -91,11 +91,20 @@ export function Filter() {
 			>
 				Add condition to filter
 			</button>
-			{filters.map((filter) => (
-				<div key={filter.id} className="flex gap-2 items-center w-full">
-					{/* TODO: Remove icon */}
+			{filters.map((filter, index) => (
+				<div key={filter.id} className="flex flex-col lg:flex-row gap-2 items-center w-full">
+					<div className="divider m-0"></div>
+					<div className="flex justify-between w-full lg:w-fit">
+						<span className="block lg:hidden">Filter {index + 1}</span>
+						<button
+							className="btn btn-circle btn-xs btn-neutral"
+							onClick={() => setFilters((filters) => filters.filter((f) => f.id !== filter.id))}
+						>
+							<FaXmark size={18} />
+						</button>
+					</div>
 					<select
-						className="select select-bordered select-sm"
+						className="select select-bordered select-sm w-full lg:w-fit"
 						value={filter.parentOperator}
 						onChange={(value) => {
 							setFilters((filters) => {
@@ -107,7 +116,7 @@ export function Filter() {
 						<option value="or">or</option>
 					</select>
 					<select
-						className="select select-bordered select-sm grow"
+						className="select select-bordered select-sm grow w-full lg:w-fit"
 						value={filter.name}
 						onChange={(value) => {
 							setFilters((filters) => {
@@ -122,15 +131,18 @@ export function Filter() {
 						))}
 					</select>
 					<OperationSelect filter={filter} setFilters={setFilters} />
-					<FilterInput filter={filter} setFilters={setFilters} />
+					{!(filter.operator === 'exists' || filter.operator === 'notExists') && (
+						<FilterInput filter={filter} setFilters={setFilters} />
+					)}
 				</div>
 			))}
 		</div>
 	);
 }
 
-function setFilterValue(filters: Filter[], filter: Filter, key: string, value: string) {
+function setFilterValue(filters: Filter[], filter: Filter, key: keyof Filter, value: string) {
 	const index = filters.findIndex((f) => f.id === filter.id);
+	if (filter[key] === value) return filters;
 	filters[index] = {
 		...filters[index],
 		[key]: value,
@@ -183,20 +195,30 @@ const datetimeOperators = [
 function OperationSelect({ filter, setFilters }: { filter: Filter; setFilters: Dispatch<SetStateAction<Filter[]>> }) {
 	const column = getAzureColumn(filter.name);
 	const columnType = column?.type;
-	const operators = columnType
-		? columnType === 'string' || columnType === 'email'
-			? stringOperators
-			: columnType === 'bool'
-			? boolOperators
-			: columnType === 'multiple'
-			? multipleOperators
-			: columnType === 'datetime'
-			? datetimeOperators
-			: []
-		: [];
+	const operators = useMemo(
+		() =>
+			columnType
+				? columnType === 'string' || columnType === 'email'
+					? stringOperators
+					: columnType === 'bool'
+					? boolOperators
+					: columnType === 'multiple'
+					? multipleOperators
+					: columnType === 'datetime'
+					? datetimeOperators
+					: []
+				: [],
+		[columnType],
+	);
+	useEffect(() => {
+		setFilters((filters) => {
+			return setFilterValue(filters, filter, 'operator', operators[0].value);
+		});
+	}, [columnType, filter, operators, setFilters]);
+
 	return (
 		<select
-			className="border border-gray-300 rounded py-1 px-2 bg-white"
+			className="select select-bordered select-sm w-full lg:w-fit"
 			value={filter.operator}
 			onChange={(value) => {
 				setFilters((filters) => {
@@ -222,15 +244,52 @@ function FilterInput({ filter, setFilters }: { filter: Filter; setFilters: Dispa
 				value={filter.value}
 				onChange={(value) => {
 					setFilters((filters) => {
-						return setFilterValue(filters, filter, 'value', value as string);
+						return setFilterValue(filters, filter, 'value', value);
 					});
 				}}
 				placeholder="Filter Expression"
 			/>
 		) : columnType === 'bool' ? (
-			<input type="button" className="input input-bordered input-sm grow" />
+			<div className="join w-40">
+				<button
+					type="button"
+					className={`btn btn-sm join-item w-1/2${filter.value === 'true' ? ' btn-primary' : ''}`}
+					onClick={() => {
+						setFilters((filters) => {
+							return setFilterValue(filters, filter, 'value', 'true');
+						});
+					}}
+				>
+					True
+				</button>
+				<button
+					type="button"
+					className={`btn btn-sm join-item w-1/2${filter.value === 'false' ? ' btn-primary' : ''}`}
+					onClick={() => {
+						setFilters((filters) => {
+							return setFilterValue(filters, filter, 'value', 'false');
+						});
+					}}
+				>
+					False
+				</button>
+			</div>
 		) : columnType === 'datetime' ? (
-			<input type="datetime-local" className="input input-bordered input-sm grow" />
+			<input
+				type="datetime-local"
+				className="input input-bordered input-sm grow min-w-48"
+				onChange={(value) => {
+					setFilters((filters) => {
+						let date;
+						try {
+							date = new Date(value.target.value).toISOString();
+						} catch (e) {
+							date = '';
+						}
+						return setFilterValue(filters, filter, 'value', date);
+					});
+				}}
+			/>
 		) : (
 			<input type="text" className="input input-bordered input-sm grow" disabled />
 		)
@@ -246,8 +305,8 @@ function DebouncedInput({
 	debounce = 500,
 	...props
 }: {
-	value: string | number;
-	onChange: (value: string | number) => void;
+	value: string;
+	onChange: (value: string) => void;
 	debounce?: number;
 } & Omit<InputHTMLAttributes<HTMLInputElement>, 'onChange'>) {
 	const [value, setValue] = useState(initialValue);
@@ -262,11 +321,12 @@ function DebouncedInput({
 		}, debounce);
 
 		return () => clearTimeout(timeout);
-	}, [value, debounce, onChange]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [value]);
 
 	return (
 		<input
-			className="input input-bordered input-sm grow"
+			className="input input-bordered input-sm grow w-full lg:w-fit"
 			{...props}
 			value={value}
 			onChange={(e) => setValue(e.target.value)}
