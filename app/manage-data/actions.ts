@@ -33,7 +33,7 @@ function requestSchoolboxData(schoolboxDomain: any, schoolboxCookie: any) {
 export async function fetchDataForm(prevState: FormState, formData: FormData): Promise<FormState> {
 	try {
 		const session = await auth();
-		if (!session)
+		if (session?.user.role !== 'admin')
 			return {
 				message: 'Unauthorized',
 				success: false,
@@ -106,6 +106,12 @@ export async function fetchDataForm(prevState: FormState, formData: FormData): P
 }
 
 export async function moveUsersToHistory(): Promise<AlertType> {
+	const session = await auth();
+	if (session?.user.role !== 'admin')
+		return {
+			message: 'Unauthorized',
+			type: 'error',
+		};
 	let isContinue: true | string = true;
 	while (isContinue === true) {
 		const users = await xata.db.users.getMany({ pagination: { size: 1000 } });
@@ -140,6 +146,12 @@ export async function moveUsersToHistory(): Promise<AlertType> {
 }
 
 export async function resetUsersHistory(): Promise<AlertType> {
+	const session = await auth();
+	if (session?.user.role !== 'admin')
+		return {
+			message: 'Unauthorized',
+			type: 'error',
+		};
 	const userHistory = (await xata.db.portraits.select(['id']).getAll()).map((user) => user.id);
 	const historyChunk = chunk(userHistory);
 	for (const chunk of historyChunk)
@@ -158,6 +170,12 @@ export async function resetUsersHistory(): Promise<AlertType> {
 }
 
 export async function resetPortraits(): Promise<AlertType> {
+	const session = await auth();
+	if (session?.user.role !== 'admin')
+		return {
+			message: 'Unauthorized',
+			type: 'error',
+		};
 	const allPortraits = (await xata.db.portraits.select(['id']).getAll()).map((portrait) => portrait.id);
 	const chunks = chunk(allPortraits);
 	for (const chunk of chunks)
@@ -177,6 +195,12 @@ export async function resetPortraits(): Promise<AlertType> {
 }
 
 export async function resetPortraitLogs(): Promise<AlertType> {
+	const session = await auth();
+	if (session?.user.role !== 'admin')
+		return {
+			message: 'Unauthorized',
+			type: 'error',
+		};
 	const allPortraitLogs = (await xata.db.portrait_logs.select(['id']).getAll()).map((portraitLog) => portraitLog.id);
 	const chunks = chunk(allPortraitLogs);
 	for (const chunk of chunks)
@@ -196,6 +220,12 @@ export async function resetPortraitLogs(): Promise<AlertType> {
 }
 
 export async function resetUserLogs(): Promise<AlertType> {
+	const session = await auth();
+	if (session?.user.role !== 'admin')
+		return {
+			message: 'Unauthorized',
+			type: 'error',
+		};
 	const allUserHistory = (await xata.db.user_logs.select(['id']).getAll()).map((userLog) => userLog.id);
 	const chunks = chunk(allUserHistory);
 	for (const chunk of chunks)

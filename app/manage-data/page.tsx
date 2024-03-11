@@ -10,6 +10,9 @@ const StatusSchema = z.object({
 });
 
 export default async function LogData() {
+	const controller = new AbortController();
+	const timeoutId = setTimeout(() => controller.abort(), 3000);
+
 	const status:
 		| {
 				azure: boolean;
@@ -19,8 +22,13 @@ export default async function LogData() {
 		headers: {
 			Authorization: process.env.AUTH_SECRET,
 		},
+		// We don't want to cache this request
+		next: { revalidate: 0 },
+		cache: 'no-store',
+		signal: controller.signal,
 	})
 		.then(async (res) => {
+			clearTimeout(timeoutId);
 			const data = await res.json();
 			const result = StatusSchema.safeParse(data);
 			if (!result.success) return `Parsing error: ${result.error.message}`;
