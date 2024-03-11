@@ -2,19 +2,19 @@
 
 import { AlertType, ErrorAlert, SuccessAlert } from '@/app/components/Alert';
 import { useState } from 'react';
-import { moveUsersToHistory, resetPortraits, resetUserLogs, resetUsersHistory } from '../actions';
+import { moveUsersToHistory, resetPortraitLogs, resetPortraits, resetUserLogs, resetUsersHistory } from '../actions';
 
 export function Danger() {
 	const [userMoveState, setUserMoveState] = useState<AlertType>(null);
 	const [userMoveLoading, setUserMoveLoading] = useState(false);
 	const [resetUserState, setResetUserState] = useState<AlertType>(null);
 	const [resetUserLoading, setResetUserLoading] = useState(false);
+	const [resetPortraitState, setResetPortraitState] = useState<AlertType>(null);
+	const [resetPortraitLoading, setResetPortraitLoading] = useState(false);
 	const [resetUserLogState, setResetUserLogState] = useState<AlertType>(null);
 	const [resetUserLogsLoading, setResetUserLogsLoading] = useState(false);
 	const [resetPortraitLogState, setResetPortraitLogState] = useState<AlertType>(null);
 	const [resetPortraitLogsLoading, setResetPortraitLogsLoading] = useState(false);
-	const [resetPortraitState, setResetPortraitState] = useState<AlertType>(null);
-	const [resetPortraitLoading, setResetPortraitLoading] = useState(false);
 
 	return (
 		<div className="join join-vertical xl:join-horizontal w-full xl:w-auto [&>button]:btn-error">
@@ -138,12 +138,12 @@ export function Danger() {
 						You&apos;re about to remove all user logs. This action is irreversible and should not be used unless
 						necessary. Are you sure you want to continue?
 					</p>
-					{resetPortraitState &&
-						(resetPortraitState.type === 'error' ? ErrorAlert(resetPortraitState) : SuccessAlert(resetPortraitState))}
+					{resetUserLogState &&
+						(resetUserLogState.type === 'error' ? ErrorAlert(resetUserLogState) : SuccessAlert(resetUserLogState))}
 					<div className="modal-action">
 						<button
 							className="btn btn-error"
-							disabled={resetPortraitLoading}
+							disabled={resetUserLogsLoading}
 							onClick={async () => {
 								setResetUserLogsLoading(true);
 								const res = await resetUserLogs();
@@ -154,7 +154,7 @@ export function Danger() {
 							Yes
 						</button>
 						<form method="dialog">
-							<button className="btn" disabled={resetPortraitLoading}>
+							<button className="btn" disabled={resetUserLogsLoading}>
 								No
 							</button>
 						</form>
@@ -168,15 +168,17 @@ export function Danger() {
 						You&apos;re about to remove all portrait logs. This action is irreversible and should not be used unless
 						necessary. Are you sure you want to continue?
 					</p>
-					{resetPortraitState &&
-						(resetPortraitState.type === 'error' ? ErrorAlert(resetPortraitState) : SuccessAlert(resetPortraitState))}
+					{resetPortraitLogState &&
+						(resetPortraitLogState.type === 'error'
+							? ErrorAlert(resetPortraitLogState)
+							: SuccessAlert(resetPortraitLogState))}
 					<div className="modal-action">
 						<button
 							className="btn btn-error"
-							disabled={resetPortraitLoading}
+							disabled={resetPortraitLogsLoading}
 							onClick={async () => {
 								setResetPortraitLogsLoading(true);
-								const res = await resetPortraits();
+								const res = await resetPortraitLogs();
 								setResetPortraitLogState(res);
 								setResetPortraitLogsLoading(false);
 							}}
@@ -184,7 +186,7 @@ export function Danger() {
 							Yes
 						</button>
 						<form method="dialog">
-							<button className="btn" disabled={resetPortraitLoading}>
+							<button className="btn" disabled={resetPortraitLogsLoading}>
 								No
 							</button>
 						</form>

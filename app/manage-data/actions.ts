@@ -19,10 +19,10 @@ function requestAzureData(azureToken: any) {
 		},
 	});
 }
-function requestSchoolboxData(schoolboxDomain: any, schoolboxCookie: any, start: any, end: any) {
+function requestSchoolboxData(schoolboxDomain: any, schoolboxCookie: any, schoolboxStartId: any, schoolboxEndId: any) {
 	return fetch(`${backendUrl}scan-portraits`, {
 		method: 'POST',
-		body: JSON.stringify({ schoolboxDomain, schoolboxCookie, start, end }),
+		body: JSON.stringify({ schoolboxDomain, schoolboxCookie, schoolboxStartId, schoolboxEndId }),
 		headers: {
 			Authorization: process.env.AUTH_SECRET,
 			'Content-Type': 'application/json',
