@@ -55,6 +55,20 @@ export function ManageData() {
 							placeholder="Schoolbox Cookie"
 							className="input input-bordered w-full"
 						/>
+						<input
+							type="number"
+							name="schoolbox-start-id"
+							placeholder="Start ID"
+							className="input input-bordered w-1/3"
+							defaultValue={0}
+						/>
+						<input
+							type="number"
+							name="schoolbox-end-id"
+							placeholder="End ID"
+							className="input input-bordered w-1/3"
+							defaultValue={11600}
+						/>
 					</div>
 					<Submit value="schoolbox">Get Schoolbox Data</Submit>
 				</div>

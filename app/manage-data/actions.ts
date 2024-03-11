@@ -19,10 +19,10 @@ function requestAzureData(azureToken: any) {
 		},
 	});
 }
-function requestSchoolboxData(schoolboxDomain: any, schoolboxCookie: any) {
+function requestSchoolboxData(schoolboxDomain: any, schoolboxCookie: any, start: any, end: any) {
 	return fetch(`${backendUrl}scan-portraits`, {
 		method: 'POST',
-		body: JSON.stringify({ schoolboxDomain, schoolboxCookie }),
+		body: JSON.stringify({ schoolboxDomain, schoolboxCookie, start, end }),
 		headers: {
 			Authorization: process.env.AUTH_SECRET,
 			'Content-Type': 'application/json',
@@ -42,13 +42,15 @@ export async function fetchDataForm(prevState: FormState, formData: FormData): P
 		const azureToken = formData.get('azure-token');
 		const schoolboxDomain = formData.get('schoolbox-domain');
 		const schoolboxCookie = formData.get('schoolbox-cookie');
+		const schoolboxStartId = formData.get('schoolbox-start-id');
+		const schoolboxEndId = formData.get('schoolbox-end-id');
 
 		const button = formData.get('button');
 		let res: Response;
 
 		if (button === 'all') {
 			const azure = await requestAzureData(azureToken);
-			const schoolbox = await requestSchoolboxData(schoolboxDomain, schoolboxCookie);
+			const schoolbox = await requestSchoolboxData(schoolboxDomain, schoolboxCookie, schoolboxStartId, schoolboxEndId);
 
 			revalidatePath('/manage-data');
 			if (azure.ok && schoolbox.ok) {
@@ -75,7 +77,7 @@ export async function fetchDataForm(prevState: FormState, formData: FormData): P
 		} else if (button === 'azure') {
 			res = await requestAzureData(azureToken);
 		} else if (button === 'schoolbox') {
-			res = await requestSchoolboxData(schoolboxDomain, schoolboxCookie);
+			res = await requestSchoolboxData(schoolboxDomain, schoolboxCookie, schoolboxStartId, schoolboxEndId);
 		} else {
 			return {
 				message: 'The button is not defined, dev tool might be used to send the request',
