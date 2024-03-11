@@ -5,6 +5,7 @@ import Portrait from '@/images/portrait.png';
 import { auth } from '@/libs/auth';
 import { dayjs } from '@/libs/dayjs';
 import { nullishToString } from '@/libs/formatValue';
+import { getShimmerImage } from '@/libs/shimmerImage';
 import { getXataClient } from '@/libs/xata';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -44,6 +45,7 @@ export default async function User({ params }: { params: { id: string } }) {
 							width={1000}
 							height={1000}
 							className="object-contain w-full"
+							placeholder={getShimmerImage(1000, 1000)}
 							priority
 						/>
 						<Link href={`/portraits/${user.mail}`} className="btn rounded-t-none btn-primary w-full">
