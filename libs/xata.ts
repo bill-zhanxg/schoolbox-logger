@@ -104,6 +104,7 @@ const tables = [
       { name: "mail", type: "email" },
       { name: "portrait", type: "file" },
       { name: "schoolbox_id", type: "int" },
+      { name: "name", type: "text" },
     ],
   },
   {
