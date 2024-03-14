@@ -1,11 +1,12 @@
 'use client';
 
+import { getColumns } from '@/libs/formatValue';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { useRouter } from 'next13-progressbar';
 import { Dispatch, InputHTMLAttributes, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react';
 import { FaXmark } from 'react-icons/fa6';
 import { v4 } from 'uuid';
-import { azureUserColumns } from '../types';
+import { ColumnsType, getOperators } from '../../libs/schema';
 
 type Filter = {
 	id: string;
@@ -15,7 +16,34 @@ type Filter = {
 	value: string;
 };
 
-export function FilterComponent() {
+export function FilterComponent({ type }: { type: 'azure-users' | 'portrait' }) {
+	const columns = getColumns(type);
+	const defaultFilters = useMemo(() => {
+		switch (type) {
+			case 'azure-users':
+				return [
+					{
+						id: v4(),
+						parentOperator: 'and',
+						name: 'displayName',
+						operator: 'iContains',
+						value: '',
+					},
+				];
+			case 'portrait':
+				return [
+					{
+						id: v4(),
+						parentOperator: 'and',
+						name: 'name',
+						operator: 'iContains',
+						value: '',
+					},
+				];
+			default:
+				return [];
+		}
+	}, [type]);
 	const searchParams = useSearchParams();
 	const pathname = usePathname();
 	const router = useRouter();
@@ -26,17 +54,7 @@ export function FilterComponent() {
 	} catch (error) {
 		initialFilters = null;
 	}
-	const [filters, setFilters] = useState<Filter[]>(
-		initialFilters ?? [
-			{
-				id: v4(),
-				parentOperator: 'and',
-				name: 'displayName',
-				operator: 'iContains',
-				value: '',
-			},
-		],
-	);
+	const [filters, setFilters] = useState<Filter[]>(initialFilters ?? defaultFilters);
 
 	const createQueryPathName = useCallback(
 		(newParams: { name: string; value: string }[]) => {
@@ -86,7 +104,7 @@ export function FilterComponent() {
 						<span className="block lg:hidden">Filter {index + 1}</span>
 						<button
 							className="btn btn-circle btn-xs btn-neutral"
-							onClick={() => setFilters((filters) => filters.filter((f) => f.id !== filter.id))}
+							onClick={() => setFilters((filters) => removeFilter(filters, filter))}
 						>
 							<FaXmark size={18} />
 						</button>
@@ -112,15 +130,15 @@ export function FilterComponent() {
 							});
 						}}
 					>
-						{azureUserColumns.map((column) => (
+						{columns.map((column) => (
 							<option key={column.name} value={column.name}>
 								{column.name}
 							</option>
 						))}
 					</select>
-					<OperationSelect filter={filter} setFilters={setFilters} />
+					<OperationSelect filter={filter} setFilters={setFilters} type={type} />
 					{!(filter.operator === 'exists' || filter.operator === 'notExists') && (
-						<FilterInput filter={filter} setFilters={setFilters} />
+						<FilterInput filter={filter} setFilters={setFilters} type={type} />
 					)}
 				</div>
 			))}
@@ -138,74 +156,33 @@ function setFilterValue(filters: Filter[], filter: Filter, key: keyof Filter, va
 	return [...filters];
 }
 
-function getAzureColumn(name: string) {
-	return azureUserColumns.find((column) => column.name === name);
+function removeFilter(filters: Filter[], filter: Filter) {
+	return filters.filter((f) => f.id !== filter.id);
 }
 
-const stringOperators = [
-	{ value: 'is', label: 'is' },
-	{ value: 'isNot', label: 'is not' },
-	{ value: 'contains', label: 'contains' },
-	{ value: 'iContains', label: 'contains (case insensitive)' },
-	{ value: 'notExists', label: 'is null' },
-	{ value: 'exists', label: 'is not null' },
-	{ value: 'startsWith', label: 'starts with' },
-	{ value: 'endsWith', label: 'ends with' },
-	{ value: 'pattern', label: 'pattern' },
-	{ value: 'iPattern', label: 'pattern (case insensitive)' },
-	{ value: 'gt', label: 'is greater than' },
-	{ value: 'ge', label: 'is greater than or equal to' },
-	{ value: 'lt', label: 'is less than' },
-	{ value: 'le', label: 'is less than or equal to' },
-];
-const boolOperators = [
-	{ value: 'is', label: 'is' },
-	{ value: 'isNot', label: 'is not' },
-	{ value: 'notExists', label: 'is null' },
-	{ value: 'exists', label: 'is not null' },
-];
-const multipleOperators = [
-	{ value: 'includes', label: 'includes' },
-	{ value: 'notExists', label: 'is null' },
-	{ value: 'exists', label: 'is not null' },
-];
-const datetimeOperators = [
-	{ value: 'is', label: 'is' },
-	{ value: 'isNot', label: 'is not' },
-	{ value: 'notExists', label: 'is null' },
-	{ value: 'exists', label: 'is not null' },
-	{ value: 'gt', label: 'is greater than' },
-	{ value: 'ge', label: 'is greater than or equal to' },
-	{ value: 'lt', label: 'is less than' },
-	{ value: 'le', label: 'is less than or equal to' },
-];
+export function getColumn(name: string, type: ColumnsType) {
+	return getColumns(type).find((column) => column.name === name);
+}
 
-function OperationSelect({ filter, setFilters }: { filter: Filter; setFilters: Dispatch<SetStateAction<Filter[]>> }) {
-	const column = getAzureColumn(filter.name);
-	const columnType = column?.type;
-	const operators = useMemo(
-		() =>
-			columnType
-				? columnType === 'string' || columnType === 'email'
-					? stringOperators
-					: columnType === 'bool'
-					? boolOperators
-					: columnType === 'multiple'
-					? multipleOperators
-					: columnType === 'datetime'
-					? datetimeOperators
-					: []
-				: [],
-		[columnType],
-	);
+function OperationSelect({
+	filter,
+	setFilters,
+	type,
+}: {
+	filter: Filter;
+	setFilters: Dispatch<SetStateAction<Filter[]>>;
+	type: ColumnsType;
+}) {
+	const operators = useMemo(() => getOperators(type, filter.name), [type, filter.name]);
 	useEffect(() => {
 		setFilters((filters) => {
-			if (!operators.find((operator) => operator.value === filter.operator))
-				return setFilterValue(filters, filter, 'operator', operators[0].value);
-			else return filters;
+			if (!operators.find((operator) => operator.value === filter.operator)) {
+				if (operators.length) return setFilterValue(filters, filter, 'operator', operators[0].value);
+				else return removeFilter(filters, filter);
+			} else return filters;
 		});
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [columnType, operators]);
+	}, [filter.name, operators]);
 
 	return (
 		<select
@@ -226,11 +203,23 @@ function OperationSelect({ filter, setFilters }: { filter: Filter; setFilters: D
 	);
 }
 
-function FilterInput({ filter, setFilters }: { filter: Filter; setFilters: Dispatch<SetStateAction<Filter[]>> }) {
-	const column = getAzureColumn(filter.name);
+function FilterInput({
+	filter,
+	setFilters,
+	type,
+}: {
+	filter: Filter;
+	setFilters: Dispatch<SetStateAction<Filter[]>>;
+	type: ColumnsType;
+}) {
+	const column = getColumn(filter.name, type);
 	const columnType = column?.type;
 	return columnType ? (
-		columnType === 'string' || columnType === 'email' || columnType === 'multiple' ? (
+		columnType === 'string' ||
+		columnType === 'email' ||
+		columnType === 'multiple' ||
+		columnType === 'text' ||
+		columnType === 'int' ? (
 			<DebouncedInput
 				value={filter.value}
 				onChange={(value) => {

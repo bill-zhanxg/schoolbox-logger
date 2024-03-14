@@ -17,6 +17,11 @@ const menu: Menu = [
 		href: '/azure-users',
 	},
 	{
+		id: 'portraits-btn',
+		name: 'Portraits',
+		href: '/portraits',
+	},
+	{
 		id: 'admin-control-btn',
 		name: 'Admin Controls',
 		admin: true,
@@ -47,10 +52,10 @@ export function NavBar({ session }: { session: Session }) {
 		session.user.role === 'admin'
 			? menu
 			: menu
-				.filter((item) => !item.admin)
-				.map((item) =>
-					Array.isArray(item.href) ? { ...item, href: item.href.filter((item) => !item.admin) } : item,
-				);
+					.filter((item) => !item.admin)
+					.map((item) =>
+						Array.isArray(item.href) ? { ...item, href: item.href.filter((item) => !item.admin) } : item,
+					);
 
 	return (
 		<>

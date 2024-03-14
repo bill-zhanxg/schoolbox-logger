@@ -25,7 +25,7 @@ export default async function User({ params }: { params: { id: string } }) {
 			},
 		})
 		.sort('xata.createdAt', 'desc')
-		.select(['portrait.signedUrl', 'schoolbox_id'])
+		.select(['portrait.signedUrl', 'name', 'schoolbox_id'])
 		.getFirst();
 
 	function formatTime(time: Date | null | undefined) {
@@ -55,6 +55,7 @@ export default async function User({ params }: { params: { id: string } }) {
 					<div className="w-full max-w-[48rem]">
 						<SideBySide title="Azure ID" value={nullishToString(user.id)} fontSize="" />
 						<SideBySide title="Logged At" value={nullishToString(formatTime(user.xata.createdAt))} fontSize="" />
+						<SideBySide title="Schoolbox Name" value={nullishToString(portrait?.name)} fontSize="" />
 						<SideBySide title="Schoolbox ID" value={nullishToString(portrait?.schoolbox_id)} fontSize="" />
 						<SideBySide title="Display Name" value={nullishToString(user.displayName)} fontSize="" />
 						<SideBySide title="First Name" value={nullishToString(user.givenName)} fontSize="" />
@@ -99,6 +100,7 @@ export default async function User({ params }: { params: { id: string } }) {
 					</div>
 				</div>
 			</Box>
+			{/* TODO: history */}
 		</div>
 	);
 }

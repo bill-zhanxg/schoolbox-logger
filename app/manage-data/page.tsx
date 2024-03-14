@@ -1,6 +1,9 @@
+import { auth } from '@/libs/auth';
+import { isAdmin } from '@/libs/checkPermission';
 import { backendUrl } from '@/libs/formatValue';
 import { FaRegTimesCircle } from 'react-icons/fa';
 import { z } from 'zod';
+import { Unauthorized } from '../globalComponents/Unauthorized';
 import { Danger } from './components/Danger';
 import { ManageData } from './components/ManageData';
 
@@ -10,8 +13,11 @@ const StatusSchema = z.object({
 });
 
 export default async function LogData() {
+	const session = await auth();
+	if (!session || !isAdmin(session)) return Unauthorized();
+
 	const controller = new AbortController();
-	const timeoutId = setTimeout(() => controller.abort(), 3000);
+	const timeoutId = setTimeout(() => controller.abort(), 6000);
 
 	const status:
 		| {
