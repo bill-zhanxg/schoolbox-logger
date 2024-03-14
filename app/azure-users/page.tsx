@@ -18,12 +18,15 @@ export default async function AzureUsers({ searchParams }: { searchParams: Searc
 	const filters = parseSearchParamsFilter(searchParams, 'azure-users');
 
 	const total = (
-		await xata.db.users.filter(filters).summarize({
-			consistency: 'eventual',
-			summaries: {
-				total: { count: '*' },
-			},
-		})
+		await xata.db.users
+			.filter(filters)
+			.summarize({
+				consistency: 'eventual',
+				summaries: {
+					total: { count: '*' },
+				},
+			})
+			.catch(() => ({ summaries: [{ total: 0 }] }))
 	).summaries[0].total;
 	const data: Page<UsersRecord, Readonly<SelectedPick<UsersRecord, ['*']>>> | string =
 		typeof filters === 'string'
