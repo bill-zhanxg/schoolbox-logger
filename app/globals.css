@@ -15,6 +15,10 @@
 }
 
 @layer components {
+	.card-grid-template {
+		grid-template-columns: repeat(auto-fit, minmax(24rem, 1fr));
+	}
+
 	.h-full-nav {
 		height: calc(100vh - 70px);
 	}

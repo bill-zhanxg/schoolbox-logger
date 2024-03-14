@@ -29,7 +29,7 @@ export default async function User({ params }: { params: { id: string } }) {
 		.getFirst();
 
 	function formatTime(time: Date | null | undefined) {
-		if (!time) return '---';
+		if (!time) return undefined;
 		return dayjs.tz(time, session?.user.timezone ?? undefined).format('L LT');
 	}
 
