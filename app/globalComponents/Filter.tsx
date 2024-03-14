@@ -3,10 +3,11 @@
 import { getColumns } from '@/libs/formatValue';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { useRouter } from 'next13-progressbar';
-import { Dispatch, InputHTMLAttributes, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react';
+import { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react';
 import { FaXmark } from 'react-icons/fa6';
 import { v4 } from 'uuid';
 import { ColumnsType, getOperators } from '../../libs/schema';
+import { DebouncedInput } from './DebouncedInput';
 
 type Filter = {
 	id: string;
@@ -275,41 +276,5 @@ function FilterInput({
 		)
 	) : (
 		<input type="text" className="input input-bordered input-sm grow" disabled />
-	);
-}
-
-// A debounced input component
-function DebouncedInput({
-	value: initialValue,
-	onChange,
-	debounce = 500,
-	...props
-}: {
-	value: string;
-	onChange: (value: string) => void;
-	debounce?: number;
-} & Omit<InputHTMLAttributes<HTMLInputElement>, 'onChange'>) {
-	const [value, setValue] = useState(initialValue);
-
-	useEffect(() => {
-		setValue(initialValue);
-	}, [initialValue]);
-
-	useEffect(() => {
-		const timeout = setTimeout(() => {
-			onChange(value);
-		}, debounce);
-
-		return () => clearTimeout(timeout);
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [value]);
-
-	return (
-		<input
-			className="input input-bordered input-sm grow w-full lg:w-fit"
-			{...props}
-			value={value}
-			onChange={(e) => setValue(e.target.value)}
-		/>
 	);
 }

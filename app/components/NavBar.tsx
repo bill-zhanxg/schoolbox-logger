@@ -22,6 +22,11 @@ const menu: Menu = [
 		href: '/portraits',
 	},
 	{
+		id: 'combined-btn',
+		name: 'Combined',
+		href: '/combined',
+	},
+	{
 		id: 'admin-control-btn',
 		name: 'Admin Controls',
 		admin: true,
