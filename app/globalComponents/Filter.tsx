@@ -80,7 +80,7 @@ export function FilterComponent({ type }: { type: 'azure-users' | 'portrait' }) 
 	}, [filters, createQueryPathName, router]);
 
 	return (
-		<div className="flex flex-col gap-2 w-full my-6 border-2 border-info p-2 rounded-lg">
+		<div className="flex flex-col gap-2 w-full my-4 border-2 border-info p-2 rounded-lg">
 			<button
 				className="btn btn-sm"
 				onClick={() =>

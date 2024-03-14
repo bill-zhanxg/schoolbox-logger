@@ -101,10 +101,16 @@ export function parseSearchParamsFilter(searchParams: SearchParams, type: Column
 				},
 			};
 		};
-		const newFilters = {
-			$all: allFilters.map((filter) => getFilterColumn(filter)),
-			$any: anyFilters.map((filter) => getFilterColumn(filter)),
+		const newFilters: {
+			$all?: Record<string, any>[];
+			$any?: Record<string, any>[];
+		} = {
+			$all: allFilters.map((filter) => getFilterColumn(filter)).filter((filter) => !isEmpty(filter)),
+			$any: anyFilters.map((filter) => getFilterColumn(filter)).filter((filter) => !isEmpty(filter)),
 		};
+		if (newFilters.$all?.length === 0) delete newFilters.$all;
+		if (newFilters.$any?.length === 0) delete newFilters.$any;
+		if (isEmpty(newFilters)) return undefined;
 		return newFilters;
 	} catch (error) {
 		return [];
@@ -113,4 +119,13 @@ export function parseSearchParamsFilter(searchParams: SearchParams, type: Column
 
 export function getColumns(type: ColumnsType) {
 	return (type === 'azure-users' ? azureUserColumns : portraitColumns).filter((column) => column.type !== 'file');
+}
+
+function isEmpty(obj: Object) {
+	for (const prop in obj) {
+		if (Object.hasOwn(obj, prop)) {
+			return false;
+		}
+	}
+	return true;
 }

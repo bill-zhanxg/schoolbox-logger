@@ -6,6 +6,7 @@ import { UsersRecord, getXataClient } from '@/libs/xata';
 import { Page, SelectedPick } from '@xata.io/client';
 import Link from 'next/link';
 import { FilterComponent } from '../globalComponents/Filter';
+import { GlobalSearch } from '../globalComponents/GlobalSearch';
 import { PaginationMenu } from '../globalComponents/PaginationMenu';
 
 const xata = getXataClient();
@@ -14,8 +15,22 @@ export default async function AzureUsers({ searchParams }: { searchParams: Searc
 	const session = await auth();
 	if (!session) return null;
 	const pageSize = 50;
-	const { page } = stringifySearchParam(searchParams);
+	const { page, search } = stringifySearchParam(searchParams);
 	const filters = parseSearchParamsFilter(searchParams, 'azure-users');
+
+	if (search) {
+		console.log('search', search);
+		const results = await xata.search.all(search, {
+			tables: [
+				{
+					table: 'users',
+					filter: filters,
+				},
+			],
+		});
+
+		console.log(results);
+	}
 
 	const total = (
 		await xata.db.users
@@ -45,6 +60,7 @@ export default async function AzureUsers({ searchParams }: { searchParams: Searc
 	return (
 		<div className="sm:p-6">
 			<h1 className="text-2xl font-bold text-center">Azure Users</h1>
+			<GlobalSearch />
 			<FilterComponent type="azure-users" />
 			{typeof data === 'string' ? (
 				<p>{data}</p>
