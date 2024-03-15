@@ -90,7 +90,7 @@ export default async function AzureUsers({ searchParams }: { searchParams: Searc
 												<div className="font-bold">
 													<GetTdChildren user={user} objKey="displayName" />
 												</div>
-												<div className="flex gap-1">
+												<div className="flex gap-1 max-w-32 lg:max-w-none whitespace-nowrap overflow-hidden">
 													<span className="badge badge-ghost badge-sm rounded-sm px-0.5">
 														<GetTdChildren user={user} objKey="givenName" />
 													</span>
