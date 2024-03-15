@@ -1,12 +1,12 @@
 import { auth } from '@/libs/auth';
 import { dayjs } from '@/libs/dayjs';
-import { parseSearchParamsFilter, stringifySearchParam } from '@/libs/formatValue';
+import { stringifySearchParam } from '@/libs/formatValue';
 import { SearchParams } from '@/libs/types';
 import { UsersRecord, getXataClient } from '@/libs/xata';
 import { Page, SelectedPick } from '@xata.io/client';
 import Link from 'next/link';
-import { FilterComponent } from '../globalComponents/Filter';
 import { PaginationMenu } from '../globalComponents/PaginationMenu';
+import { GlobalSearch } from '../globalComponents/Search';
 
 const xata = getXataClient();
 
@@ -14,38 +14,33 @@ export default async function AzureUsers({ searchParams }: { searchParams: Searc
 	const session = await auth();
 	if (!session) return null;
 	const pageSize = 50;
-	const { page } = stringifySearchParam(searchParams);
-	const filters = parseSearchParamsFilter(searchParams, 'azure-users');
+	const { page, search } = stringifySearchParam(searchParams);
 
-	const total = (
-		await xata.db.users
-			.filter(filters)
-			.summarize({
-				consistency: 'eventual',
-				summaries: {
-					total: { count: '*' },
-				},
-			})
-			.catch(() => ({ summaries: [{ total: 0 }] }))
-	).summaries[0].total;
-	const data: Page<UsersRecord, Readonly<SelectedPick<UsersRecord, ['*']>>> | string =
-		typeof filters === 'string'
-			? filters
-			: await xata.db.users
-					.filter(filters)
-					.getPaginated({
-						consistency: 'eventual',
-						pagination: {
-							offset: page ? (parseInt(page) - 1) * pageSize : 0,
-							size: pageSize,
-						},
-					})
-					.catch((err) => err.message);
+	// Work around total, we're reading from two different tables
+	const total = 0;
+	const data: Page<UsersRecord, Readonly<SelectedPick<UsersRecord, ['*']>>> = await xata.db.users
+		.filter(search ? { displayName: { $iContains: search } } : {})
+		.getPaginated({
+			consistency: 'eventual',
+			pagination: {
+				offset: page ? (parseInt(page) - 1) * pageSize : 0,
+				size: pageSize,
+			},
+		});
+	const portraits = await xata.db.portraits
+		.filter(search ? { name: { $iContains: search } } : {
+			// name: { $incl}
+		})
+		.getPaginated({
+			consistency: 'eventual',
+		});
+
+	console.log(portraits);
 
 	return (
 		<div className="sm:p-6">
-			<h1 className="text-2xl font-bold text-center">Azure Users</h1>
-			<FilterComponent type="azure-users" />
+			<h1 className="text-2xl font-bold text-center">Azure Users and Portraits</h1>
+			<GlobalSearch placeholder="Search Names" />
 			{typeof data === 'string' ? (
 				<p>{data}</p>
 			) : (

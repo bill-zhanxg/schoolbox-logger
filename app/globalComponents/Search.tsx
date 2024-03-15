@@ -5,7 +5,7 @@ import { useRouter } from 'next13-progressbar';
 import { useCallback } from 'react';
 import { DebouncedInput } from './DebouncedInput';
 
-export function GlobalSearch() {
+export function GlobalSearch({ ...props }) {
 	const searchParams = useSearchParams();
 	const pathname = usePathname();
 	const router = useRouter();
@@ -45,6 +45,7 @@ export function GlobalSearch() {
 					]);
 					router.push(url);
 				}}
+				{...props}
 			/>
 		</div>
 	);

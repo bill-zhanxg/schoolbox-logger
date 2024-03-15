@@ -6,7 +6,7 @@ import { UsersRecord, getXataClient } from '@/libs/xata';
 import { Page, SelectedPick } from '@xata.io/client';
 import Link from 'next/link';
 import { FilterComponent } from '../globalComponents/Filter';
-import { GlobalSearch } from '../globalComponents/GlobalSearch';
+import { GlobalSearch } from '../globalComponents/Search';
 import { PaginationMenu } from '../globalComponents/PaginationMenu';
 
 const xata = getXataClient();
