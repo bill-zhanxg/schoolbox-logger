@@ -18,15 +18,17 @@ export default async function User({ params }: { params: { id: string } }) {
 
 	const user = await xata.db.users.read(params.id);
 	if (!user) return <ErrorMessage code="404" message="User not found" />;
-	const portrait = await xata.db.portraits
-		.filter({
-			mail: {
-				$iContains: user.mail ?? undefined,
-			},
-		})
-		.sort('xata.createdAt', 'desc')
-		.select(['portrait.signedUrl', 'name', 'schoolbox_id'])
-		.getFirst();
+	const portrait = user.mail
+		? await xata.db.portraits
+				.filter({
+					mail: {
+						$iContains: user.mail,
+					},
+				})
+				.sort('xata.createdAt', 'desc')
+				.select(['portrait.signedUrl', 'name', 'schoolbox_id'])
+				.getFirst()
+		: undefined;
 
 	function formatTime(time: Date | null | undefined) {
 		if (!time) return undefined;

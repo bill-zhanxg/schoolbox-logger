@@ -1,6 +1,6 @@
 import { auth } from '@/libs/auth';
 import { dayjs } from '@/libs/dayjs';
-import { parseSearchParamsFilter, stringifySearchParam } from '@/libs/formatValue';
+import { nullishToString, parseSearchParamsFilter, stringifySearchParam } from '@/libs/formatValue';
 import { SearchParams } from '@/libs/types';
 import { UsersRecord, getXataClient } from '@/libs/xata';
 import { Page, SelectedPick } from '@xata.io/client';
@@ -18,20 +18,6 @@ export default async function AzureUsers({ searchParams }: { searchParams: Searc
 	const { page, search } = stringifySearchParam(searchParams);
 	const filters = parseSearchParamsFilter(searchParams, 'azure-users');
 
-	if (search) {
-		console.log('search', search);
-		const results = await xata.search.all(search, {
-			tables: [
-				{
-					table: 'users',
-					filter: filters,
-				},
-			],
-		});
-
-		console.log(results);
-	}
-
 	const total = (
 		await xata.db.users
 			.filter(filters)
@@ -46,6 +32,20 @@ export default async function AzureUsers({ searchParams }: { searchParams: Searc
 	const data: Page<UsersRecord, Readonly<SelectedPick<UsersRecord, ['*']>>> | string =
 		typeof filters === 'string'
 			? filters
+			: search
+			? await xata.search
+					.all(search, {
+						tables: [
+							{
+								table: 'users',
+								filter: filters,
+							},
+						],
+					})
+					.then((res) => ({
+						records: res.records.map((record) => record.record),
+					}))
+					.catch((err) => err.message)
 			: await xata.db.users
 					.filter(filters)
 					.getPaginated({
@@ -67,7 +67,7 @@ export default async function AzureUsers({ searchParams }: { searchParams: Searc
 			) : (
 				<>
 					<div className="overflow-x-auto mb-2">
-						<table className="table">
+						<table className="table [&_em]:bg-yellow-300">
 							{/* head */}
 							<thead>
 								<tr>
@@ -87,24 +87,30 @@ export default async function AzureUsers({ searchParams }: { searchParams: Searc
 									<tr key={user.id}>
 										<td>
 											<div>
-												<div className="font-bold">{user.displayName}</div>
+												<div className="font-bold">
+													<GetTdChildren user={user} objKey="displayName" />
+												</div>
 												<div className="flex gap-1">
-													<span className="badge badge-ghost badge-sm rounded-sm px-0.5">{user.givenName}</span>
-													<span className="badge badge-ghost badge-sm rounded-sm px-0.5">{user.surname}</span>
+													<span className="badge badge-ghost badge-sm rounded-sm px-0.5">
+														<GetTdChildren user={user} objKey="givenName" />
+													</span>
+													<span className="badge badge-ghost badge-sm rounded-sm px-0.5">
+														<GetTdChildren user={user} objKey="surname" />
+													</span>
 												</div>
 											</div>
 										</td>
-										<td>{user.postalCode ?? '---'}</td>
-										<td>{user.city ?? '---'}</td>
-										<td>{user.mailNickname ?? '---'}</td>
-										<td>{user.department ?? '---'}</td>
+										<td>{<GetTdChildren user={user} objKey="postalCode" />}</td>
+										<td>{<GetTdChildren user={user} objKey="city" />}</td>
+										<td>{<GetTdChildren user={user} objKey="mailNickname" />}</td>
+										<td>{<GetTdChildren user={user} objKey="department" />}</td>
 										<td>{user.accountEnabled?.toString() ?? '---'}</td>
 										<td>
 											{user.createdDateTime
 												? dayjs.tz(user.createdDateTime, session.user.timezone ?? undefined).format('L LT')
 												: '---'}
 										</td>
-										<td>{user.userType ?? '---'}</td>
+										<td>{<GetTdChildren user={user} objKey="userType" />}</td>
 										<th>
 											<Link href={`/azure-users/${user.id}`} className="btn btn-ghost btn-xs">
 												details
@@ -119,5 +125,23 @@ export default async function AzureUsers({ searchParams }: { searchParams: Searc
 				</>
 			)}
 		</div>
+	);
+}
+
+function GetTdChildren({
+	user,
+	objKey,
+}: {
+	user: Readonly<SelectedPick<UsersRecord, ['*']>>;
+	objKey: keyof Readonly<SelectedPick<UsersRecord, ['*']>>;
+}) {
+	return (user.xata as any).highlight?.[objKey] ? (
+		<span
+			dangerouslySetInnerHTML={{
+				__html: (user.xata as any).highlight[objKey],
+			}}
+		/>
+	) : (
+		nullishToString(user[objKey] as any)
 	);
 }
