@@ -72,7 +72,7 @@ export default async function AzureUsers({ searchParams }: { searchParams: Searc
 										<td>
 											<div>
 												<div className="font-bold">{user.displayName}</div>
-												<div className="flex gap-1">
+												<div className="flex gap-1 max-w-32 lg:max-w-none whitespace-nowrap overflow-hidden">
 													<span className="badge badge-ghost badge-sm rounded-sm px-0.5">{user.givenName}</span>
 													<span className="badge badge-ghost badge-sm rounded-sm px-0.5">{user.surname}</span>
 												</div>
