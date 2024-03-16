@@ -1,9 +1,13 @@
+import Portrait from '@/images/portrait.png';
 import { auth } from '@/libs/auth';
 import { dayjs } from '@/libs/dayjs';
 import { stringifySearchParam } from '@/libs/formatValue';
+import { getShimmerImage } from '@/libs/shimmerImage';
 import { SearchParams } from '@/libs/types';
-import { UsersRecord, getXataClient } from '@/libs/xata';
+import { PortraitsRecord, UsersRecord, getXataClient } from '@/libs/xata';
 import { Page, SelectedPick } from '@xata.io/client';
+import { Session } from 'next-auth';
+import Image from 'next/image';
 import Link from 'next/link';
 import { PaginationMenu } from '../globalComponents/PaginationMenu';
 import { GlobalSearch } from '../globalComponents/Search';
@@ -28,14 +32,20 @@ export default async function AzureUsers({ searchParams }: { searchParams: Searc
 			},
 		});
 	const portraits = await xata.db.portraits
-		.filter(search ? { name: { $iContains: search } } : {
-			// name: { $incl}
+		.filter({
+			$any: {
+				name: search ? { $iContains: search } : {},
+				mail: { $any: data.records.map((user) => user.mail) },
+			},
 		})
+		.select(['name', 'mail', 'portrait.signedUrl'])
 		.getPaginated({
 			consistency: 'eventual',
 		});
 
-	console.log(portraits);
+	const portraitOnly = portraits.records.filter(
+		(portrait) => !data.records.find((user) => user.mail === portrait.mail),
+	);
 
 	return (
 		<div className="sm:p-6">
@@ -62,31 +72,36 @@ export default async function AzureUsers({ searchParams }: { searchParams: Searc
 								</tr>
 							</thead>
 							<tbody>
-								{data.records.map((user) => (
-									<tr key={user.id}>
+								{data.records.map((user) => getUserTr(user, portraits, session))}
+								{portraitOnly.map((portrait) => (
+									<tr key={portrait.id}>
 										<td>
-											<div>
-												<div className="font-bold">{user.displayName}</div>
-												<div className="flex gap-1 max-w-32 lg:max-w-none whitespace-nowrap overflow-hidden">
-													<span className="badge badge-ghost badge-sm rounded-sm px-0.5">{user.givenName}</span>
-													<span className="badge badge-ghost badge-sm rounded-sm px-0.5">{user.surname}</span>
+											<div className="flex items-center gap-3">
+												<div className="avatar">
+													<div className="mask mask-square w-12 h-12">
+														<Image
+															src={portrait?.portrait?.signedUrl ?? Portrait}
+															alt={'Portrait'}
+															width={300}
+															height={300}
+															className="object-contain w-full"
+															placeholder={getShimmerImage(300, 300)}
+														/>
+													</div>
 												</div>
+												<div className="font-bold">{portrait.name}</div>
 											</div>
 										</td>
-										<td>{user.postalCode ?? '---'}</td>
-										<td>{user.city ?? '---'}</td>
-										<td>{user.mailNickname ?? '---'}</td>
-										<td>{user.department ?? '---'}</td>
-										<td>{user.accountEnabled?.toString() ?? '---'}</td>
-										<td>
-											{user.createdDateTime
-												? dayjs.tz(user.createdDateTime, session.user.timezone ?? undefined).format('L LT')
-												: '---'}
-										</td>
-										<td>{user.userType ?? '---'}</td>
+										<td>{'---'}</td>
+										<td>{'---'}</td>
+										<td>{'---'}</td>
+										<td>{'---'}</td>
+										<td>{'---'}</td>
+										<td>{'---'}</td>
+										<td>{'---'}</td>
 										<th>
-											<Link href={`/azure-users/${user.id}`} className="btn btn-ghost btn-xs">
-												details
+											<Link href={`/portraits/${portrait.mail}`} className="btn btn-ghost btn-xs">
+												portrait history
 											</Link>
 										</th>
 									</tr>
@@ -98,5 +113,58 @@ export default async function AzureUsers({ searchParams }: { searchParams: Searc
 				</>
 			)}
 		</div>
+	);
+}
+
+function getUserTr(
+	data: UsersRecord,
+	portraits: Page<PortraitsRecord, SelectedPick<PortraitsRecord, ('name' | 'mail' | 'portrait.signedUrl')[]>>,
+	session: Session,
+) {
+	const portrait = portraits.records.find((p) => p.mail === data.mail);
+
+	return (
+		<tr key={data.id}>
+			<td>
+				<div className="flex items-center gap-3">
+					<div className="avatar">
+						<div className="mask mask-square w-12 h-12">
+							<Image
+								src={portrait?.portrait?.signedUrl ?? Portrait}
+								alt={'Portrait'}
+								width={300}
+								height={300}
+								className="object-contain w-full"
+								placeholder={getShimmerImage(300, 300)}
+							/>
+						</div>
+					</div>
+					<div>
+						<div className="font-bold">{data.displayName}</div>
+						<div className="flex gap-1 max-w-32 lg:max-w-none whitespace-nowrap overflow-hidden">
+							<span className="badge badge-ghost badge-sm rounded-sm px-0.5">{data.givenName}</span>
+							<span className="badge badge-ghost badge-sm rounded-sm px-0.5">{data.surname}</span>
+						</div>
+						<div>{portrait?.name ?? '---'}</div>
+					</div>
+				</div>
+			</td>
+			<td>{data.postalCode ?? '---'}</td>
+			<td>{data.city ?? '---'}</td>
+			<td>{data.mailNickname ?? '---'}</td>
+			<td>{data.department ?? '---'}</td>
+			<td>{data.accountEnabled?.toString() ?? '---'}</td>
+			<td>
+				{data.createdDateTime
+					? dayjs.tz(data.createdDateTime, session.user.timezone ?? undefined).format('L LT')
+					: '---'}
+			</td>
+			<td>{data.userType ?? '---'}</td>
+			<th>
+				<Link href={`/azure-users/${data.id}`} className="btn btn-ghost btn-xs">
+					details
+				</Link>
+			</th>
+		</tr>
 	);
 }
