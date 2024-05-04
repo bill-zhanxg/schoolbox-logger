@@ -10,12 +10,6 @@ export function GlobalSearch({ ...props }) {
 	const pathname = usePathname();
 	const router = useRouter();
 	const searchParamsFilter = searchParams.get('search');
-	let initialFilters;
-	try {
-		initialFilters = searchParamsFilter ? JSON.parse(searchParamsFilter) : undefined;
-	} catch (error) {
-		initialFilters = null;
-	}
 
 	const createQueryPathName = useCallback(
 		(newParams: { name: string; value: string }[]) => {
@@ -35,7 +29,7 @@ export function GlobalSearch({ ...props }) {
 				className="input input-bordered input-sm w-full"
 				type="text"
 				placeholder="Global Search"
-				value={initialFilters || ''}
+				value={searchParamsFilter || ''}
 				onChange={(value) => {
 					const url = createQueryPathName([
 						{
