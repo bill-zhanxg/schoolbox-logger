@@ -82,8 +82,6 @@ export function parseSearchParamsFilter(searchParams: SearchParams, type: Column
 			if (operator === '$exists' || operator === '$notExists') return { [operator]: filter.name };
 			const getFilterValue = () => {
 				switch (columnType) {
-					case 'file':
-						return undefined;
 					case 'bool':
 						return filter.value === 'true' ? true : filter.value === 'false' ? false : undefined;
 					case 'datetime':
