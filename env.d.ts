@@ -8,8 +8,8 @@ namespace NodeJS {
 		XATA_API_KEY: string;
 
 		AUTH_SECRET: string;
-		AZURE_AD_CLIENT_ID: string;
-		AZURE_AD_CLIENT_SECRET: string;
-		AZURE_AD_TENANT_ID: string;
+		AUTH_MICROSOFT_ENTRA_ID_ID: string;
+		AUTH_MICROSOFT_ENTRA_ID_SECRET: string;
+		AUTH_MICROSOFT_ENTRA_ID_TENANT_ID: string;
 	}
 }

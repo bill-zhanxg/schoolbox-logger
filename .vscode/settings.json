@@ -2,6 +2,7 @@
     "css.lint.unknownAtRules": "ignore",
     "cSpell.words": [
         "datetime",
+        "entra",
         "Kysely",
         "odata",
         "progressbar",

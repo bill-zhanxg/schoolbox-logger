@@ -34,7 +34,7 @@ export default async function Login({
 				className="w-4/5 max-w-[20rem]"
 				action={async () => {
 					'use server';
-					await signIn('azure-ad');
+					await signIn('microsoft-entra-id');
 				}}
 			>
 				<button type="submit" className="btn btn-primary w-full">

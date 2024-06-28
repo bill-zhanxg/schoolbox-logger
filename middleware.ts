@@ -5,7 +5,9 @@ export async function middleware(request: NextRequest) {
 	const session = await auth();
 	if (!session)
 		return NextResponse.redirect(
-			new URL(process.env.BASE_URL).href + `login?redirect=${encodeURIComponent(request.nextUrl.pathname)}`,
+			new URL(process.env.BASE_URL).href +
+				`login` +
+				(request.nextUrl.pathname === '/' ? '' : `?redirect=${encodeURIComponent(request.nextUrl.pathname)}`),
 		);
 
 	// Modify the request headers with client's IP address
