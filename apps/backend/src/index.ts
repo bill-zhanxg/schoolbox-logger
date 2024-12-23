@@ -6,16 +6,19 @@ const dynamicImport = new Function('specifier', 'return import(specifier)');
 
 import { AuthProviderCallback, Client } from '@microsoft/microsoft-graph-client';
 import { User } from '@microsoft/microsoft-graph-types';
+import { prisma } from '@repo/database';
 import * as cheerio from 'cheerio';
 import express, { NextFunction, Request, Response } from 'express';
 import type QueueType from 'queue';
-import { chunk } from './libs/formatValue';
-import { getXataFile } from './libs/getXataFile';
-import { getXataClient } from './libs/xata';
+import { chunk } from './libs/formatValue.js';
+import { getXataFile } from './libs/getXataFile.js';
+import { getXataClient } from './libs/xata.js';
 
 const app = express();
 const xata = getXataClient();
 app.use(express.json());
+
+prisma
 
 export function authenticatedUser(req: Request, res: Response, next: NextFunction) {
 	const secret = req.headers.authorization;
@@ -31,24 +34,71 @@ const workingStatus = {
 };
 
 app.post('/scan-portraits', authenticatedUser, async (req, res) => {
-	if (workingStatus.schoolbox)
-		return res.status(400).send('Already processing Schoolbox portraits, please wait until it finished');
+	(() => {
+		if (workingStatus.schoolbox)
+			return res.status(400).send('Already processing Schoolbox portraits, please wait until it finished');
 
-	const { schoolboxDomain, schoolboxCookie, schoolboxStartId, schoolboxEndId } = req.body;
-	const start = parseInt(schoolboxStartId, 10);
-	// End need to be +1 because the loop is exclusive, if parseInt is NaN dw it will still be NaN after +1
-	const end = parseInt(schoolboxEndId, 10) + 1;
-	// Validate request body
-	if (!schoolboxDomain || !schoolboxCookie) return res.status(400).send('Incomplete request body');
-	if (Number.isNaN(start) || Number.isNaN(end)) return res.status(400).send('Invalid start or end value');
-	let schoolboxUrl: string;
-	try {
-		schoolboxUrl = new URL(schoolboxDomain).href;
-	} catch (err) {
-		return res.status(400).send('Invalid schoolbox domain');
-	}
+		const { schoolboxDomain, schoolboxCookie, schoolboxStartId, schoolboxEndId } = req.body;
+		const start = parseInt(schoolboxStartId, 10);
+		// End need to be +1 because the loop is exclusive, if parseInt is NaN dw it will still be NaN after +1
+		const end = parseInt(schoolboxEndId, 10) + 1;
+		// Validate request body
+		if (!schoolboxDomain || !schoolboxCookie) return res.status(400).send('Incomplete request body');
+		if (Number.isNaN(start) || Number.isNaN(end)) return res.status(400).send('Invalid start or end value');
+		let schoolboxUrl: string;
+		try {
+			schoolboxUrl = new URL(schoolboxDomain).href;
+		} catch (err) {
+			return res.status(400).send('Invalid schoolbox domain');
+		}
 
-	res.send('I got the response, I will process in the background');
+		res.send('I got the response, I will process in the background');
+
+		fetchSchoolbox(schoolboxUrl, schoolboxCookie, start, end);
+	})();
+});
+
+app.post('/azure-users', authenticatedUser, async (req, res) => {
+	(async () => {
+		if (workingStatus.azure)
+			return res.status(400).send('Already processing Azure users, please wait until it finished');
+
+		const { azureToken } = req.body;
+		// Validate request body
+		if (!azureToken) return res.status(400).send('Incomplete request body');
+
+		const client = Client.init({
+			authProvider: (callback: AuthProviderCallback) => {
+				callback(null, azureToken as string);
+			},
+		});
+
+		// Check if key provided is valid
+		const valid = await client
+			.api('/users')
+			.get()
+			.then(() => true)
+			.catch(() => false);
+		if (!valid) {
+			console.error('Invalid Azure token');
+			return res.status(400).send('Azure token is invalid');
+		}
+
+		res.send('I got the response, I will process in the background');
+
+		fetchAzureUsers(client);
+	})();
+});
+
+app.get('/status', authenticatedUser, async (req, res) => {
+	res.send(workingStatus);
+});
+
+app.listen(process.env.PORT, () => {
+	console.log(`listening on ${process.env.PORT}`);
+});
+
+async function fetchSchoolbox(schoolboxUrl: string, schoolboxCookie: string, start: number, end: number) {
 	workingStatus.schoolbox = true;
 
 	const Queue = (await dynamicImport('queue')).default;
@@ -190,17 +240,17 @@ app.post('/scan-portraits', authenticatedUser, async (req, res) => {
 										// Schoolbox is rate limited (can't handle too many requests)
 										// <title>Schoolbox is currently unavailable</title>
 										/*
-											<div class="row">
-												<div id="message">
-													<h2>We are experiencing more requests than we can handle.</h2>
-													<p>
-														We apologise that due to current high volumes of traffic we are unable to process your request at this time.
-														Please wait for a minute then try refreshing your page. This problem is generally temporary and will pass
-														once traffic returns to normal. If this persists, please contact your IT department to let them know.
-													</p>
+												<div class="row">
+													<div id="message">
+														<h2>We are experiencing more requests than we can handle.</h2>
+														<p>
+															We apologise that due to current high volumes of traffic we are unable to process your request at this time.
+															Please wait for a minute then try refreshing your page. This problem is generally temporary and will pass
+															once traffic returns to normal. If this persists, please contact your IT department to let them know.
+														</p>
+													</div>
 												</div>
-											</div>
-										*/
+											*/
 										// We want to wait and retry the request
 										logs.push({
 											message: `Schoolbox is rate limited for ${i}`,
@@ -323,33 +373,9 @@ app.post('/scan-portraits', authenticatedUser, async (req, res) => {
 	workingStatus.schoolbox = false;
 	console.log('everything is finished!');
 	await xata.db.portrait_logs.create({ message: 'everything is finished!', level: 'verbose' }).catch(() => {});
-});
+}
 
-app.post('/azure-users', authenticatedUser, async (req, res) => {
-	if (workingStatus.azure) return res.status(400).send('Already processing Azure users, please wait until it finished');
-
-	const { azureToken } = req.body;
-	// Validate request body
-	if (!azureToken) return res.status(400).send('Incomplete request body');
-
-	const client = Client.init({
-		authProvider: (callback: AuthProviderCallback) => {
-			callback(null, azureToken as string);
-		},
-	});
-
-	// Check if key provided is valid
-	const valid = await client
-		.api('/users')
-		.get()
-		.then(() => true)
-		.catch(() => false);
-	if (!valid) {
-		console.error('Invalid Azure token');
-		return res.status(400).send('Azure token is invalid');
-	}
-
-	res.send('I got the response, I will process in the background');
+async function fetchAzureUsers(client: Client) {
 	workingStatus.azure = true;
 
 	async function createUserLog(message: string, level: 'verbose' | 'info' | 'warning' | 'error') {
@@ -416,7 +442,7 @@ app.post('/azure-users', authenticatedUser, async (req, res) => {
 							$select:
 								'accountEnabled,ageGroup,businessPhones,city,createdDateTime,department,displayName,givenName,id,lastPasswordChangeDateTime,mail,mailNickname,mobilePhone,onPremisesDistinguishedName,onPremisesLastSyncDateTime,onPremisesSamAccountName,onPremisesSyncEnabled,postalCode,streetAddress,surname,userType,',
 							$top: 999,
-					  }
+						}
 					: {},
 			)
 			.get()
@@ -460,12 +486,4 @@ app.post('/azure-users', authenticatedUser, async (req, res) => {
 	workingStatus.azure = false;
 	console.log('everything is finished!');
 	await createUserLog('everything is finished!', 'verbose');
-});
-
-app.get('/status', authenticatedUser, async (req, res) => {
-	res.send(workingStatus);
-});
-
-app.listen(process.env.PORT, () => {
-	console.log(`listening on ${process.env.PORT}`);
-});
+}

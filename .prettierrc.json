@@ -1,0 +1,8 @@
+{
+	"printWidth": 120,
+	"useTabs": true,
+	"singleQuote": true,
+	"quoteProps": "as-needed",
+	"trailingComma": "all",
+	"plugins": ["prettier-plugin-sql-cst", "prettier-plugin-tailwindcss"]
+}

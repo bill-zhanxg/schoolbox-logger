@@ -7,8 +7,8 @@
     "experimentalDecorators": true,
     "forceConsistentCasingInFileNames": true,
     "importHelpers": true,
-    "module": "commonjs",
-    "moduleResolution": "node",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
     "noImplicitAny": true,
     "outDir": "dist",
     "pretty": true,
@@ -21,7 +21,7 @@
   "include": [
     "env.d.ts",
     "next-auth.d.ts",
-    "./src/**/*.ts",
+    "./src/**/*.ts"
   ],
   "exclude": [
     "node_modules"

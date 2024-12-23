@@ -1,0 +1,94 @@
+model AzureUsers {
+    id                          Int       @id @default(autoincrement())
+    accountEnabled              Boolean?
+    ageGroup                    String?
+    businessPhones              String[]
+    city                        String?
+    createdDateTime             DateTime?
+    department                  String?
+    displayName                 String?
+    givenName                   String?
+    lastPasswordChangeDateTime  DateTime?
+    mail                        String?
+    mailNickname                String?
+    mobilePhone                 String?
+    onPremisesDistinguishedName String?
+    onPremisesSamAccountName    String?
+    onPremisesSyncEnabled       Boolean?
+    postalCode                  String?
+    streetAddress               String?
+    surname                     String?
+    userType                    String?
+    onPremisesLastSyncDateTime  DateTime?
+
+    history AzureUserHistory[]
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+model AzureUserHistory {
+    id                          Int       @id @default(autoincrement())
+    accountEnabled              Boolean?
+    ageGroup                    String?
+    businessPhones              String[]
+    city                        String?
+    createdDateTime             DateTime?
+    department                  String?
+    displayName                 String?
+    givenName                   String?
+    lastPasswordChangeDateTime  DateTime?
+    mail                        String?
+    mailNickname                String?
+    mobilePhone                 String?
+    onPremisesDistinguishedName String?
+    onPremisesSamAccountName    String?
+    onPremisesSyncEnabled       Boolean?
+    postalCode                  String?
+    streetAddress               String?
+    surname                     String?
+    userType                    String?
+    onPremisesLastSyncDateTime  DateTime?
+
+    user   AzureUsers @relation(fields: [userId], references: [id])
+    userId Int
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+model Portraits {
+    id           Int     @id @default(autoincrement())
+    name         String?
+    mail         String
+    portrait     String
+    schoolbox_id Int
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+model PortraitLogs {
+    id      Int      @id @default(autoincrement())
+    message String
+    level   LogLevel
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+model UserLogs {
+    id      Int      @id @default(autoincrement())
+    message String
+    level   LogLevel
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+enum LogLevel {
+    verbose
+    info
+    warning
+    error
+}

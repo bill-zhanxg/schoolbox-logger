@@ -2,6 +2,7 @@
 	"$schema": "https://turbo.build/schema.json",
 	"tasks": {
 		"dev": {
+			"dependsOn": ["^dev"],
 			"cache": false,
 			"persistent": true
 		},
@@ -10,14 +11,15 @@
 			"inputs": ["$TURBO_DEFAULT$", ".env*"],
 			"outputs": ["dist/**", ".next/**", "!.next/cache/**"]
 		},
-		"start": {
-			"dependsOn": ["^start"]
+		"start": {},
+		"prisma:migrate:dev": {
+			"cache": false,
+			"interactive": true
 		},
-		"db:migrate:deploy": {},
-		"db:push": {},
-		"generate": {
-			"dependsOn": ["^generate"]
+		"prisma:generateSql": {
+			"cache": false
 		},
 		"lint": {}
-	}
+	},
+	"ui": "stream"
 }
