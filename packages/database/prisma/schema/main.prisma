@@ -60,8 +60,8 @@ model AzureUserHistory {
 model Portraits {
     id           Int     @id @default(autoincrement())
     name         String?
-    mail         String
-    portrait     String
+    mail         String?
+    portrait     String?
     schoolbox_id Int
 
     createdAt DateTime @default(now())
