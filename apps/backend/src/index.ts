@@ -10,15 +10,13 @@ import { prisma } from '@repo/database';
 import * as cheerio from 'cheerio';
 import express, { NextFunction, Request, Response } from 'express';
 import type QueueType from 'queue';
-import { chunk } from './libs/formatValue.js';
-import { getXataFile } from './libs/getXataFile.js';
-import { getXataClient } from './libs/xata.js';
+import { chunk } from './libs/formatValue';
+import { getXataFile } from './libs/getXataFile';
+import { getXataClient } from './libs/xata';
 
 const app = express();
 const xata = getXataClient();
 app.use(express.json());
-
-prisma
 
 export function authenticatedUser(req: Request, res: Response, next: NextFunction) {
 	const secret = req.headers.authorization;
