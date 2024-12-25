@@ -1,7 +1,6 @@
 // file deepcode ignore Ssrf: Strictly authenticated path
 // file deepcode ignore UseCsurfForExpress: This server uses server authentication instead of cookies
 // file deepcode ignore DisablePoweredBy: We don't need to hide the server
-import 'dotenv-flow/config';
 const dynamicImport = new Function('specifier', 'return import(specifier)');
 
 import { AuthProviderCallback, Client } from '@microsoft/microsoft-graph-client';
@@ -13,6 +12,8 @@ import type QueueType from 'queue';
 import { chunk } from './libs/formatValue';
 import { getXataFile } from './libs/getXataFile';
 import { getXataClient } from './libs/xata';
+
+console.log(process.env.S3_ACCESS_KEY_ID)
 
 const app = express();
 const xata = getXataClient();
