@@ -11,13 +11,6 @@
 			"outputs": ["dist/**", ".next/**", "!.next/cache/**"]
 		},
 		"start": {},
-		"prisma:migrate:dev": {
-			"cache": false,
-			"interactive": true
-		},
-		"prisma:generateSql": {
-			"cache": false
-		},
 		"lint": {}
 	},
 	"ui": "stream"

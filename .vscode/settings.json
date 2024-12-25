@@ -4,6 +4,7 @@
         "datetime",
         "entra",
         "Kysely",
+        "neondatabase",
         "odata",
         "prefersdark",
         "progressbar",
