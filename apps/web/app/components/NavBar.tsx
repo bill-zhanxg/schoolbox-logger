@@ -48,11 +48,7 @@ const menu: Menu = [
 export function NavBar({ session }: { session: Session }) {
 	function handleMobileLiClick() {
 		const element = document.activeElement;
-		console.log(element);
-		console.log('blur-sm' in element);
-		if (element && 'blur-sm' in element) {
-			(element as HTMLElement).blur();
-		}
+		if (element) (element as HTMLElement).blur();
 	}
 
 	const menuFiltered =
@@ -67,13 +63,13 @@ export function NavBar({ session }: { session: Session }) {
 	return (
 		<>
 			<div className="dropdown w-full sm:w-0">
-				<label tabIndex={0} className="btn btn-ghost sm:hidden w-full">
+				<label tabIndex={0} className="btn btn-ghost w-full sm:hidden">
 					<FaBars />
 				</label>
 				<ul
 					id="mobile-menu"
 					tabIndex={0}
-					className="menu menu-md dropdown-content mt-3 z-100 p-2 shadow-sm bg-base-100 rounded-box border border-primary w-full"
+					className="menu menu-md dropdown-content bg-base-100 rounded-box border-primary z-100 mt-3 w-full border p-2 shadow-sm"
 				>
 					{menuFiltered.map((item) =>
 						Array.isArray(item.href) ? (
@@ -100,13 +96,13 @@ export function NavBar({ session }: { session: Session }) {
 				</ul>
 			</div>
 			<div className="navbar-center hidden sm:flex">
-				<ul className="menu menu-horizontal px-1 z-100">
+				<ul className="menu menu-horizontal z-100 px-1">
 					{menuFiltered.map((item) =>
 						Array.isArray(item.href) ? (
 							<li key={item.id}>
 								<details>
 									<summary id={item.id}>{item.name}</summary>
-									<ul className="p-2 border border-primary">
+									<ul className="border-primary border p-2">
 										{item.href.map((item) => (
 											<li className="w-36" key={item.id}>
 												<Link
