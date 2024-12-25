@@ -4,8 +4,8 @@ import { dayjs } from '@/libs/dayjs';
 import { nullishToString, parseSearchParamsFilter, stringifySearchParam } from '@/libs/formatValue';
 import { getShimmerImage } from '@/libs/shimmerImage';
 import { SearchParams } from '@/libs/types';
-import { PortraitsRecord, getXataClient } from '@/libs/xata';
-import { Page, SelectedPick } from '@xata.io/client';
+import { getXataClient } from '@/libs/xata';
+import { prisma } from '@repo/database';
 import Image from 'next/image';
 import Link from 'next/link';
 import { FilterComponent } from '../globalComponents/Filter';
@@ -20,36 +20,16 @@ export default async function Portraits({ searchParams }: { searchParams: Search
 	const { page } = stringifySearchParam(await searchParams);
 	const filters = parseSearchParamsFilter(await searchParams, 'portrait');
 
-	const total = (
-		await xata.db.portraits
-			.filter(filters)
-			.summarize({
-				consistency: 'eventual',
-				summaries: {
-					total: { count: '*' },
-				},
-			})
-			.catch(() => ({ summaries: [{ total: 0 }] }))
-	).summaries[0].total;
-	const data:
-		| Page<
-				PortraitsRecord,
-				SelectedPick<PortraitsRecord, ('name' | 'mail' | 'xata.createdAt' | 'portrait.signedUrl')[]>
-		  >
-		| string =
+	const total = await prisma.portraits.count({ where: typeof filters === 'string' ? undefined : filters });
+
+	const data =
 		typeof filters === 'string'
 			? filters
-			: await xata.db.portraits
-					.filter(filters)
-					.select(['name', 'mail', 'xata.createdAt', 'portrait.signedUrl'])
-					.getPaginated({
-						consistency: 'eventual',
-						pagination: {
-							offset: page ? (parseInt(page) - 1) * pageSize : 0,
-							size: pageSize,
-						},
-					})
-					.catch((err) => err.message);
+			: await prisma.portraits.findMany({
+					where: filters,
+					skip: page ? (parseInt(page) - 1) * pageSize : 0,
+					take: pageSize,
+				});
 
 	function formatTime(time: Date | null | undefined) {
 		if (!time) return undefined;
@@ -58,22 +38,23 @@ export default async function Portraits({ searchParams }: { searchParams: Search
 
 	return (
 		<div className="sm:p-6">
-			<h1 className="text-2xl font-bold text-center">Portraits</h1>
+			<h1 className="text-center text-2xl font-bold">Portraits</h1>
 			<FilterComponent type="portrait" />
 			{typeof data === 'string' ? (
 				<p>{data}</p>
 			) : (
 				<>
-					<div className="grid card-grid-template justify-items-center gap-6 mb-4">
-						{data.records.map((portrait) => (
-							<div key={portrait.id} className="card w-96 bg-base-100 shadow-xl">
+					<div className="card-grid-template mb-4 grid justify-items-center gap-6">
+						{data.map((portrait) => (
+							<div key={portrait.id} className="card bg-base-100 w-96 shadow-xl">
 								<figure>
 									<Image
-										src={portrait?.portrait?.signedUrl ?? Portrait}
+										// TODO: Fix the image
+										src={portrait?.portrait ?? Portrait}
 										alt={'Portrait'}
 										width={1000}
 										height={1000}
-										className="object-contain w-full"
+										className="w-full object-contain"
 										placeholder={getShimmerImage(1000, 1000)}
 										priority
 									/>
@@ -81,7 +62,7 @@ export default async function Portraits({ searchParams }: { searchParams: Search
 								<div className="card-body gap-0 py-4">
 									<h2 className="card-title">{nullishToString(portrait.name)}</h2>
 									<p>{nullishToString(portrait.mail)}</p>
-									<p>{nullishToString(formatTime(portrait.xata.createdAt))}</p>
+									<p>{nullishToString(formatTime(portrait.createdAt))}</p>
 									<div className="card-actions justify-end">
 										<Link href={`/portraits/${portrait.mail}`} className="btn btn-sm w-full">
 											View History

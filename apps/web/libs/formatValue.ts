@@ -1,3 +1,4 @@
+import { Prisma } from '@prisma/client';
 import { z } from 'zod';
 import { dayjs } from './dayjs';
 import { ColumnsType, azureUserColumns, getOperators, portraitColumns } from './schema';
@@ -53,6 +54,7 @@ export const ParseFilterSchema = z.array(
 		name: z.string(),
 		operator: z.string(),
 		parentOperator: z.string(),
+		mode: z.enum(['insensitive', 'default']),
 		value: z.string(),
 	}),
 );
@@ -61,7 +63,10 @@ export type ParseFilters = z.infer<typeof ParseFilterSchema>;
 /**
  * If return string, it's an error message, make sure to handle error if pass straight the filter function
  */
-export function parseSearchParamsFilter(searchParams: Awaited<SearchParams>, type: ColumnsType) {
+export function parseSearchParamsFilter<T extends ColumnsType>(
+	searchParams: Awaited<SearchParams>,
+	type: T,
+): ('azure-users' extends T ? Prisma.AzureUsersWhereInput : Prisma.PortraitsWhereInput) | string | undefined {
 	const columns = getColumns(type);
 	try {
 		const filters = stringifySearchParam(searchParams).filter;
@@ -71,13 +76,20 @@ export function parseSearchParamsFilter(searchParams: Awaited<SearchParams>, typ
 		let allFilters: ParseFilters = filterObject.data.filter((filter) => filter.parentOperator === 'and');
 		let anyFilters: ParseFilters = filterObject.data.filter((filter) => filter.parentOperator === 'or');
 		const getFilterColumn = (filter: ParseFilters[number]) => {
-			const operator = '$' + filter.operator;
+			const operator = filter.operator;
 			const columnType = columns.find((column) => column.name === filter.name)?.type;
 
 			if (!columnType || !filter.value) return {};
-			// Validate if operator is valid
+
+			if (operator === 'null') {
+				return { [filter.name]: null };
+			}
+			if (operator === 'notNull') {
+				return { [filter.name]: { not: null } };
+			}
+
 			const allowedOperators = getOperators(type, filter.name).map((operator) => operator.value);
-			if (!allowedOperators.includes(filter.operator)) return {};
+			if (!allowedOperators.includes(operator)) return {};
 
 			if (operator === '$exists' || operator === '$notExists') return { [operator]: filter.name };
 			const getFilterValue = () => {
@@ -93,25 +105,24 @@ export function parseSearchParamsFilter(searchParams: Awaited<SearchParams>, typ
 				}
 			};
 
+			const filterValue = getFilterValue();
 			return {
 				[filter.name]: {
-					[operator]: getFilterValue(),
+					[operator]: filterValue,
+					mode: filter.mode,
 				},
 			};
 		};
-		const newFilters: {
-			$all?: Record<string, any>[];
-			$any?: Record<string, any>[];
-		} = {
-			$all: allFilters.map((filter) => getFilterColumn(filter)).filter((filter) => !isEmpty(filter)),
-			$any: anyFilters.map((filter) => getFilterColumn(filter)).filter((filter) => !isEmpty(filter)),
+		const newFilters: 'azure-users' extends T ? Prisma.AzureUsersWhereInput : Prisma.PortraitsWhereInput = {
+			AND: allFilters.map((filter) => getFilterColumn(filter)).filter((filter) => !isEmpty(filter)),
+			OR: anyFilters.map((filter) => getFilterColumn(filter)).filter((filter) => !isEmpty(filter)),
 		};
-		if (newFilters.$all?.length === 0) delete newFilters.$all;
-		if (newFilters.$any?.length === 0) delete newFilters.$any;
+		if (Array.isArray(newFilters.AND) && newFilters.AND.length === 0) delete newFilters.AND;
+		if (Array.isArray(newFilters.OR) && newFilters.OR.length === 0) delete newFilters.OR;
 		if (isEmpty(newFilters)) return undefined;
 		return newFilters;
 	} catch (error) {
-		return [];
+		return undefined;
 	}
 }
 

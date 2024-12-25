@@ -46,51 +46,48 @@ export const portraitColumns = [
 ] as const;
 
 export const stringOperators = [
-	{ value: 'is', label: 'is' },
-	{ value: 'isNot', label: 'is not' },
+	{ value: 'equals', label: 'equals' },
+	{ value: 'not', label: 'not' },
 	{ value: 'contains', label: 'contains' },
-	{ value: 'iContains', label: 'contains (case insensitive)' },
-	{ value: 'notExists', label: 'is null' },
-	{ value: 'exists', label: 'is not null' },
+	{ value: 'null', label: 'is null' },
+	{ value: 'notNull', label: 'is not null' },
 	{ value: 'startsWith', label: 'starts with' },
 	{ value: 'endsWith', label: 'ends with' },
-	{ value: 'pattern', label: 'pattern' },
-	{ value: 'iPattern', label: 'pattern (case insensitive)' },
 	{ value: 'gt', label: 'is greater than' },
-	{ value: 'ge', label: 'is greater than or equal to' },
+	{ value: 'gte', label: 'is greater than or equal to' },
 	{ value: 'lt', label: 'is less than' },
-	{ value: 'le', label: 'is less than or equal to' },
+	{ value: 'lte', label: 'is less than or equal to' },
 ];
 export const boolOperators = [
-	{ value: 'is', label: 'is' },
-	{ value: 'isNot', label: 'is not' },
-	{ value: 'notExists', label: 'is null' },
-	{ value: 'exists', label: 'is not null' },
+	{ value: 'equals', label: 'equals' },
+	{ value: 'not', label: 'not' },
+	{ value: 'null', label: 'is null' },
+	{ value: 'notNull', label: 'is not null' },
 ];
 export const multipleOperators = [
-	{ value: 'includes', label: 'includes' },
-	{ value: 'notExists', label: 'is null' },
-	{ value: 'exists', label: 'is not null' },
+	{ value: 'has', label: 'has' },
+	{ value: 'null', label: 'is null' },
+	{ value: 'notNull', label: 'is not null' },
 ];
 export const datetimeOperators = [
 	{ value: 'is', label: 'is' },
-	{ value: 'isNot', label: 'is not' },
-	{ value: 'notExists', label: 'is null' },
-	{ value: 'exists', label: 'is not null' },
+	{ value: 'not', label: 'not' },
+	{ value: 'null', label: 'is null' },
+	{ value: 'notNull', label: 'is not null' },
 	{ value: 'gt', label: 'is greater than' },
-	{ value: 'ge', label: 'is greater than or equal to' },
+	{ value: 'gte', label: 'is greater than or equal to' },
 	{ value: 'lt', label: 'is less than' },
-	{ value: 'le', label: 'is less than or equal to' },
+	{ value: 'lte', label: 'is less than or equal to' },
 ];
 export const integerOperators = [
 	{ value: 'is', label: 'is' },
-	{ value: 'isNot', label: 'is not' },
-	{ value: 'notExists', label: 'is null' },
-	{ value: 'exists', label: 'is not null' },
+	{ value: 'not', label: 'not' },
+	{ value: 'null', label: 'is null' },
+	{ value: 'notNull', label: 'is not null' },
 	{ value: 'gt', label: 'is greater than' },
-	{ value: 'ge', label: 'is greater than or equal to' },
+	{ value: 'gte', label: 'is greater than or equal to' },
 	{ value: 'lt', label: 'is less than' },
-	{ value: 'le', label: 'is less than or equal to' },
+	{ value: 'lte', label: 'is less than or equal to' },
 ];
 
 export function getOperators(type: ColumnsType, name: string) {

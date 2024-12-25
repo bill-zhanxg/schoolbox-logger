@@ -14,12 +14,13 @@ type Filter = {
 	parentOperator: string;
 	name: string;
 	operator: string;
+	mode: 'insensitive' | 'default';
 	value: string;
 };
 
 export function FilterComponent({ type }: { type: 'azure-users' | 'portrait' }) {
 	const columns = getColumns(type);
-	const defaultFilters = useMemo(() => {
+	const defaultFilters: Filter[] = useMemo(() => {
 		switch (type) {
 			case 'azure-users':
 				return [
@@ -27,7 +28,8 @@ export function FilterComponent({ type }: { type: 'azure-users' | 'portrait' }) 
 						id: v4(),
 						parentOperator: 'and',
 						name: 'displayName',
-						operator: 'iContains',
+						operator: 'contains',
+						mode: 'insensitive',
 						value: '',
 					},
 				];
@@ -37,7 +39,8 @@ export function FilterComponent({ type }: { type: 'azure-users' | 'portrait' }) 
 						id: v4(),
 						parentOperator: 'and',
 						name: 'name',
-						operator: 'iContains',
+						operator: 'contains',
+						mode: 'insensitive',
 						value: '',
 					},
 				];
@@ -80,7 +83,7 @@ export function FilterComponent({ type }: { type: 'azure-users' | 'portrait' }) 
 	}, [filters, createQueryPathName, router]);
 
 	return (
-		<div className="flex flex-col gap-2 w-full my-4 border-2 border-info p-2 rounded-lg">
+		<div className="border-info my-4 flex w-full flex-col gap-2 rounded-lg border-2 p-2">
 			<button
 				className="btn btn-sm"
 				onClick={() =>
@@ -88,9 +91,10 @@ export function FilterComponent({ type }: { type: 'azure-users' | 'portrait' }) 
 						...filters,
 						{
 							id: v4(),
+							parentOperator: 'and',
 							name: 'id',
 							operator: 'is',
-							parentOperator: 'and',
+							mode: 'insensitive',
 							value: '',
 						},
 					])
@@ -99,9 +103,9 @@ export function FilterComponent({ type }: { type: 'azure-users' | 'portrait' }) 
 				Add condition to filter
 			</button>
 			{filters.map((filter, index) => (
-				<div key={filter.id} className="flex flex-col lg:flex-row gap-2 items-center w-full">
+				<div key={filter.id} className="flex w-full flex-col items-center gap-2 lg:flex-row">
 					<div className="divider m-0"></div>
-					<div className="flex justify-between w-full lg:w-fit">
+					<div className="flex w-full justify-between lg:w-fit">
 						<span className="block lg:hidden">Filter {index + 1}</span>
 						<button
 							className="btn btn-circle btn-xs btn-neutral"
@@ -123,7 +127,7 @@ export function FilterComponent({ type }: { type: 'azure-users' | 'portrait' }) 
 						<option value="or">or</option>
 					</select>
 					<select
-						className="select select-bordered select-sm grow w-full lg:w-fit"
+						className="select select-bordered select-sm w-full grow lg:w-fit"
 						value={filter.name}
 						onChange={(value) => {
 							setFilters((filters) => {
@@ -138,6 +142,18 @@ export function FilterComponent({ type }: { type: 'azure-users' | 'portrait' }) 
 						))}
 					</select>
 					<OperationSelect filter={filter} setFilters={setFilters} type={type} />
+					<select
+						className="select select-bordered select-sm w-full lg:w-fit"
+						value={filter.mode}
+						onChange={(value) => {
+							setFilters((filters) => {
+								return setFilterValue(filters, filter, 'mode', value.target.value);
+							});
+						}}
+					>
+						<option value={'insensitive'}>Insensitive</option>
+						<option value={'default'}>Default</option>
+					</select>
 					{!(filter.operator === 'exists' || filter.operator === 'notExists') && (
 						<FilterInput filter={filter} setFilters={setFilters} type={type} />
 					)}
@@ -234,7 +250,7 @@ function FilterInput({
 			<div className="join w-40">
 				<button
 					type="button"
-					className={`btn btn-sm join-item w-1/2${filter.value === 'true' ? ' btn-primary' : ''}`}
+					className={`btn btn-sm join-item w-1/2${filter.value === 'true' ? 'btn-primary' : ''}`}
 					onClick={() => {
 						setFilters((filters) => {
 							return setFilterValue(filters, filter, 'value', 'true');
@@ -245,7 +261,7 @@ function FilterInput({
 				</button>
 				<button
 					type="button"
-					className={`btn btn-sm join-item w-1/2${filter.value === 'false' ? ' btn-primary' : ''}`}
+					className={`btn btn-sm join-item w-1/2${filter.value === 'false' ? 'btn-primary' : ''}`}
 					onClick={() => {
 						setFilters((filters) => {
 							return setFilterValue(filters, filter, 'value', 'false');
@@ -258,7 +274,7 @@ function FilterInput({
 		) : columnType === 'datetime' ? (
 			<input
 				type="datetime-local"
-				className="input input-bordered input-sm grow min-w-48"
+				className="input input-bordered input-sm min-w-48 grow"
 				onChange={(value) => {
 					setFilters((filters) => {
 						let date;
