@@ -28,7 +28,7 @@ export function ProfilePicture({
 	return (
 		<label
 			htmlFor="avatar"
-			className="avatar hover:cursor-pointer h-24 w-24 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2 overflow-hidden mt-2 backdrop-opacity-10 bg-white/30"
+			className="avatar hover:cursor-pointer h-24 w-24 rounded-full ring-3 ring-primary ring-offset-base-100 ring-offset-2 overflow-hidden mt-2 backdrop-opacity-10 bg-white/30"
 		>
 			<UserAvatar user={userState} />
 			<input

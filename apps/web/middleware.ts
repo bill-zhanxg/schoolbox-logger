@@ -12,7 +12,11 @@ export async function middleware(request: NextRequest) {
 
 	// Modify the request headers with client's IP address
 	const requestHeaders = new Headers(request.headers);
-	const ip = request.ip || '';
+	const ip =
+		request.headers.get('x-real-ip') ||
+		request.headers.get('x-forwarded-for') ||
+		request.headers.get('x-client-ip') ||
+		'';
 	requestHeaders.set('x-forwarded-for', ip);
 	return NextResponse.next({
 		request: {
@@ -22,11 +26,13 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-	matcher: {
-		source: '/((?!api|login|manifest|_next/static|_next/image|favicon.ico).*)',
-		missing: [
-			{ type: 'header', key: 'next-router-prefetch' },
-			{ type: 'header', key: 'purpose', value: 'prefetch' },
-		],
-	},
+	matcher: [
+		{
+			source: '/((?!api|login|manifest|_next/static|_next/image|favicon.ico|logo-icon.png).*)',
+			missing: [
+				{ type: 'header', key: 'next-router-prefetch' },
+				{ type: 'header', key: 'purpose', value: 'prefetch' },
+			],
+		},
+	],
 };

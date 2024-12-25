@@ -13,7 +13,7 @@ export default async function Profile() {
 			<div className="w-full max-w-[50rem] m-4 flex gap-8 flex-col">
 				<Box className="flex-row p-2 items-center">
 					<div className="avatar p-4">
-						<div className="avatar w-16 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
+						<div className="avatar w-16 rounded-full ring-3 ring-primary ring-offset-base-100 ring-offset-2">
 							<UserAvatar user={session.user} />
 						</div>
 					</div>

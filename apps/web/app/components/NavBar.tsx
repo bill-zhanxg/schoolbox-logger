@@ -48,7 +48,7 @@ const menu: Menu = [
 export function NavBar({ session }: { session: Session }) {
 	function handleMobileLiClick() {
 		const element = document.activeElement;
-		if (element && 'blur' in element) {
+		if (element && 'blur-sm' in element) {
 			(element as HTMLElement).blur();
 		}
 	}
@@ -71,7 +71,7 @@ export function NavBar({ session }: { session: Session }) {
 				<ul
 					id="mobile-menu"
 					tabIndex={0}
-					className="menu menu-md dropdown-content mt-3 z-[100] p-2 shadow bg-base-100 rounded-box border border-primary w-full"
+					className="menu menu-md dropdown-content mt-3 z-100 p-2 shadow-sm bg-base-100 rounded-box border border-primary w-full"
 				>
 					{menuFiltered.map((item) =>
 						Array.isArray(item.href) ? (
@@ -98,7 +98,7 @@ export function NavBar({ session }: { session: Session }) {
 				</ul>
 			</div>
 			<div className="navbar-center hidden sm:flex">
-				<ul className="menu menu-horizontal px-1 z-[100]">
+				<ul className="menu menu-horizontal px-1 z-100">
 					{menuFiltered.map((item) =>
 						Array.isArray(item.href) ? (
 							<li key={item.id}>

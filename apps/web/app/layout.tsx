@@ -50,14 +50,14 @@ export default async function RootLayout({
 										</div>
 										<ul
 											tabIndex={0}
-											className="menu menu-md dropdown-content mt-3 z-[100] p-2 shadow-xl bg-base-100 rounded-box w-52 border border-primary"
+											className="menu menu-md dropdown-content mt-3 z-100 p-2 shadow-xl bg-base-100 rounded-box w-52 border border-primary"
 										>
 											<li>
 												<Link href="/settings">User Settings</Link>
 											</li>
 											<li>
 												<form
-													className="menu-title !p-0"
+													className="menu-title p-0!"
 													action={async () => {
 														'use server';
 														await signOut();

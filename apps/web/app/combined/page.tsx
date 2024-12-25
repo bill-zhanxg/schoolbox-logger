@@ -142,8 +142,8 @@ function getUserTr(
 					<div>
 						<div className="font-bold">{data.displayName}</div>
 						<div className="flex gap-1 max-w-32 lg:max-w-none whitespace-nowrap overflow-hidden">
-							<span className="badge badge-ghost badge-sm rounded-sm px-0.5">{data.givenName}</span>
-							<span className="badge badge-ghost badge-sm rounded-sm px-0.5">{data.surname}</span>
+							<span className="badge badge-ghost badge-sm rounded-xs px-0.5">{data.givenName}</span>
+							<span className="badge badge-ghost badge-sm rounded-xs px-0.5">{data.surname}</span>
 						</div>
 						<div>{portrait?.name ?? '---'}</div>
 					</div>

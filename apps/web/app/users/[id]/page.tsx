@@ -25,7 +25,7 @@ export default async function User({
 				<div className="card-body">
 					<div className="flex flex-col sm:flex-row gap-6 items-center break-all">
 						<div className="avatar">
-							<div className="w-24 rounded-full avatar h-24 ring ring-primary ring-offset-base-100 ring-offset-2 overflow-hidden mt-2 backdrop-opacity-10 bg-white/30">
+							<div className="w-24 rounded-full avatar h-24 ring-3 ring-primary ring-offset-base-100 ring-offset-2 overflow-hidden mt-2 backdrop-opacity-10 bg-white/30">
 								<UserAvatar user={user} />
 							</div>
 						</div>
