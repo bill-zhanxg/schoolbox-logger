@@ -13,23 +13,22 @@ type ErrorCodes =
 	| 'SessionRequired'
 	| 'Default';
 
-export default async function Login({
-	searchParams,
-}: {
-	searchParams: {
+export default async function Login(props: {
+	searchParams: Promise<{
 		redirect: string | string[] | undefined;
 		error: ErrorCodes | string | string[] | undefined;
 		message: string | string[] | undefined;
-	};
+	}>;
 }) {
+	const searchParams = await props.searchParams;
 	const callbackURL = typeof searchParams.redirect === 'string' ? searchParams.redirect : searchParams.redirect?.[0];
 
 	const session = await auth();
 	if (session) return redirect(decodeURIComponent(callbackURL ?? '/'));
 
 	return (
-		<div className="flex flex-col justify-center items-center gap-3 h-full">
-			<h1 className="text-4xl text-center font-bold p-5">Schoolbox Logger Login (Authorized access only)</h1>
+		<div className="flex h-full flex-col items-center justify-center gap-3">
+			<h1 className="p-5 text-center text-4xl font-bold">Schoolbox Logger Login (Authorized access only)</h1>
 			<form
 				className="w-4/5 max-w-[20rem]"
 				action={async () => {
@@ -46,7 +45,7 @@ export default async function Login({
 				<div className="alert alert-error w-4/5 max-w-[20rem]">
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
-						className="stroke-current shrink-0 h-6 w-6"
+						className="h-6 w-6 shrink-0 stroke-current"
 						fill="none"
 						viewBox="0 0 24 24"
 					>

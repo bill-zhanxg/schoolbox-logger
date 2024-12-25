@@ -18,7 +18,7 @@ export default async function AzureUsers({ searchParams }: { searchParams: Searc
 	const session = await auth();
 	if (!session) return null;
 	const pageSize = 50;
-	const { page, search } = stringifySearchParam(searchParams);
+	const { page, search } = stringifySearchParam(await searchParams);
 
 	// Work around total, we're reading from two different tables
 	const total = 0;

@@ -19,7 +19,7 @@ export default async function PortraitHistory({
 	const session = await auth();
 	if (!session) return null;
 	const pageSize = 10;
-	const { page } = stringifySearchParam(searchParams);
+	const { page } = stringifySearchParam(await searchParams);
 	const filters = {
 		mail: {
 			$iContains: decodeURIComponent(params.mail),

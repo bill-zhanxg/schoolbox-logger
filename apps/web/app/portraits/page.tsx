@@ -17,8 +17,8 @@ export default async function Portraits({ searchParams }: { searchParams: Search
 	const session = await auth();
 	if (!session) return null;
 	const pageSize = 30;
-	const { page } = stringifySearchParam(searchParams);
-	const filters = parseSearchParamsFilter(searchParams, 'portrait');
+	const { page } = stringifySearchParam(await searchParams);
+	const filters = parseSearchParamsFilter(await searchParams, 'portrait');
 
 	const total = (
 		await xata.db.portraits

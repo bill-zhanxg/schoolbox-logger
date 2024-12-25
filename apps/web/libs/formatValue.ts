@@ -8,7 +8,7 @@ import { SearchParams } from './types';
  */
 export const backendUrl = process.env.BACKEND_URL ? new URL(process.env.BACKEND_URL) : undefined;
 
-export function stringifySearchParam(searchParams: SearchParams): { [key: string]: string | undefined } {
+export function stringifySearchParam(searchParams: Awaited<SearchParams>): { [key: string]: string | undefined } {
 	for (const key in searchParams) {
 		if (Array.isArray(searchParams[key])) searchParams[key] = searchParams[key]?.[0];
 	}
@@ -61,7 +61,7 @@ export type ParseFilters = z.infer<typeof ParseFilterSchema>;
 /**
  * If return string, it's an error message, make sure to handle error if pass straight the filter function
  */
-export function parseSearchParamsFilter(searchParams: SearchParams, type: ColumnsType) {
+export function parseSearchParamsFilter(searchParams: Awaited<SearchParams>, type: ColumnsType) {
 	const columns = getColumns(type);
 	try {
 		const filters = stringifySearchParam(searchParams).filter;

@@ -48,6 +48,8 @@ const menu: Menu = [
 export function NavBar({ session }: { session: Session }) {
 	function handleMobileLiClick() {
 		const element = document.activeElement;
+		console.log(element);
+		console.log('blur-sm' in element);
 		if (element && 'blur-sm' in element) {
 			(element as HTMLElement).blur();
 		}
