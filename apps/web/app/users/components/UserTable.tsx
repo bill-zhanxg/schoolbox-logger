@@ -5,8 +5,8 @@ import { UserAvatar } from '@/app/globalComponents/UserAvatar';
 import { NextauthUsersRecord } from '@/libs/xata';
 import { JSONData, SelectedPick } from '@xata.io/client';
 import { useRouter } from 'next13-progressbar';
-import { useEffect, useRef, useState } from 'react';
-import { useFormState, useFormStatus } from 'react-dom';
+import { useEffect, useRef, useState, useActionState } from 'react';
+import { useFormStatus } from 'react-dom';
 import { changeRole } from '../actions';
 
 export type ChangeRoleState = null | {
@@ -25,7 +25,7 @@ export function UserTable({
 }) {
 	const router = useRouter();
 
-	const [state, formAction] = useFormState<ChangeRoleState, FormData>(changeRole, null);
+	const [state, formAction] = useActionState<ChangeRoleState, FormData>(changeRole, null);
 
 	const [users, setUsers] = useState(serverUsers);
 	const [search, setSearch] = useState('');

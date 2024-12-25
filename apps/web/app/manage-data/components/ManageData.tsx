@@ -2,12 +2,13 @@
 
 import { FormState } from '@/libs/types';
 import Link from 'next/link';
-import { useFormState, useFormStatus } from 'react-dom';
+import { useActionState } from "react";
+import { useFormStatus } from 'react-dom';
 import { FaRegCheckCircle, FaRegTimesCircle } from 'react-icons/fa';
 import { fetchDataForm } from '../actions';
 
 export function ManageData() {
-	const [state, formAction] = useFormState<FormState, FormData>(fetchDataForm, null);
+	const [state, formAction] = useActionState<FormState, FormData>(fetchDataForm, null);
 
 	return (
 		<form

@@ -3,15 +3,15 @@
 import { dayjs } from '@/libs/dayjs';
 import { FormState } from '@/libs/types';
 import { Session } from 'next-auth';
-import { useEffect, useRef, useState } from 'react';
-import { useFormState, useFormStatus } from 'react-dom';
+import { useEffect, useRef, useState, useActionState } from 'react';
+import { useFormStatus } from 'react-dom';
 import { FaRegCheckCircle, FaRegTimesCircle } from 'react-icons/fa';
 import { Box } from '../../globalComponents/Box';
 import { updateProfile } from '../actions';
 import { ProfilePicture } from './ProfilePicture';
 
 export function SettingsForm({ session }: { session: Session }) {
-	const [state, formAction] = useFormState<FormState, FormData>(updateProfile, null);
+	const [state, formAction] = useActionState<FormState, FormData>(updateProfile, null);
 
 	const prevState = useRef(state);
 	useEffect(() => {
