@@ -1,13 +1,13 @@
 'use server';
-
 import { auth } from '@/libs/auth';
-import { backendUrl, chunk } from '@/libs/formatValue';
+import { backendUrl } from '@/libs/formatValue';
+import { s3Client } from '@/libs/s3-sdk';
 import { FormState } from '@/libs/types';
-import { getXataClient } from '@/libs/xata';
+import { DeleteObjectsCommand, ListObjectsV2Command } from '@aws-sdk/client-s3';
+import { moveUserToHistory } from '@prisma/client/sql';
+import { prisma } from '@repo/database';
 import { revalidatePath } from 'next/cache';
 import { AlertType } from '../components/Alert';
-
-const xata = getXataClient();
 
 function requestAzureData(azureToken: any) {
 	return fetch(`${backendUrl}azure-users`, {
@@ -114,37 +114,20 @@ export async function moveUsersToHistory(): Promise<AlertType> {
 			message: 'Unauthorized',
 			type: 'error',
 		};
-	let isContinue: true | string = true;
-	while (isContinue === true) {
-		const users = await xata.db.users.getMany({ pagination: { size: 1000 } });
-		if (users.length === 0) break;
-		await xata.transactions
-			.run(
-				users.map(({ id, xata, ...data }) => ({
-					insert: {
-						table: 'users_history',
-						record: {
-							...data,
-							user_id: id,
-						},
-					},
-				})),
-			)
-			.catch((err) => (isContinue = `Failed to move users to history: ${err.message}`));
-		await xata.transactions
-			.run(users.map(({ id }) => ({ delete: { table: 'users', id } })))
-			.catch((err) => (isContinue = `Failed to delete users: ${err.message}`));
+
+	try {
+		await prisma.$queryRawTyped(moveUserToHistory());
+	} catch (error) {
+		return {
+			message: (error as Error).message || 'Failed to move users to history',
+			type: 'error',
+		};
 	}
 
-	return isContinue === true
-		? {
-				message: 'All users were moved to history',
-				type: 'success',
-		  }
-		: {
-				message: isContinue,
-				type: 'error',
-		  };
+	return {
+		message: 'All users were moved to history',
+		type: 'success',
+	};
 }
 
 export async function resetUsersHistory(): Promise<AlertType> {
@@ -154,17 +137,16 @@ export async function resetUsersHistory(): Promise<AlertType> {
 			message: 'Unauthorized',
 			type: 'error',
 		};
-	const userHistory = (await xata.db.portraits.select(['id']).getAll()).map((user) => user.id);
-	const historyChunk = chunk(userHistory);
-	for (const chunk of historyChunk)
-		await xata.transactions.run(
-			chunk.map((id) => ({
-				delete: {
-					table: 'users_history',
-					id,
-				},
-			})),
-		);
+
+	try {
+		await prisma.azureUserHistory.deleteMany();
+	} catch (error) {
+		return {
+			message: (error as Error).message || 'Failed to reset user history',
+			type: 'error',
+		};
+	}
+
 	return {
 		message: 'All user history was removed',
 		type: 'success',
@@ -178,17 +160,39 @@ export async function resetPortraits(): Promise<AlertType> {
 			message: 'Unauthorized',
 			type: 'error',
 		};
-	const allPortraits = (await xata.db.portraits.select(['id']).getAll()).map((portrait) => portrait.id);
-	const chunks = chunk(allPortraits);
-	for (const chunk of chunks)
-		await xata.transactions.run(
-			chunk.map((id) => ({
-				delete: {
-					table: 'portraits',
-					id,
-				},
-			})),
-		);
+
+	try {
+		const deleteAllObjects = async () => {
+			const listParams = {
+				Bucket: process.env.BUCKET_NAME,
+			};
+
+			const listedObjects = await s3Client.send(new ListObjectsV2Command(listParams));
+
+			if (!listedObjects.Contents || listedObjects.Contents.length === 0) return;
+
+			const deleteKeys = listedObjects.Contents.map(({ Key }) => ({ Key })).filter(
+				(key): key is { Key: string } => !!key.Key,
+			);
+
+			await s3Client.send(
+				new DeleteObjectsCommand({
+					Bucket: process.env.BUCKET_NAME,
+					Delete: { Objects: deleteKeys },
+				}),
+			);
+
+			if (listedObjects.IsTruncated) {
+				await deleteAllObjects();
+			}
+		};
+		await deleteAllObjects();
+
+		await prisma.portraits.deleteMany();
+	} catch (error) {
+		console.error('Error resetting portraits:', error);
+		throw error;
+	}
 
 	return {
 		message: 'All portraits were removed',
@@ -203,17 +207,13 @@ export async function resetPortraitLogs(): Promise<AlertType> {
 			message: 'Unauthorized',
 			type: 'error',
 		};
-	const allPortraitLogs = (await xata.db.portrait_logs.select(['id']).getAll()).map((portraitLog) => portraitLog.id);
-	const chunks = chunk(allPortraitLogs);
-	for (const chunk of chunks)
-		await xata.transactions.run(
-			chunk.map((id) => ({
-				delete: {
-					table: 'portrait_logs',
-					id,
-				},
-			})),
-		);
+
+	try {
+		await prisma.portraitLogs.deleteMany();
+	} catch (error) {
+		console.error('Error resetting portrait logs:', error);
+		throw error;
+	}
 
 	return {
 		message: 'All portrait logs were removed',
@@ -228,17 +228,13 @@ export async function resetUserLogs(): Promise<AlertType> {
 			message: 'Unauthorized',
 			type: 'error',
 		};
-	const allUserHistory = (await xata.db.user_logs.select(['id']).getAll()).map((userLog) => userLog.id);
-	const chunks = chunk(allUserHistory);
-	for (const chunk of chunks)
-		await xata.transactions.run(
-			chunk.map((id) => ({
-				delete: {
-					table: 'users_history',
-					id,
-				},
-			})),
-		);
+
+	try {
+		await prisma.userLogs.deleteMany();
+	} catch (error) {
+		console.error('Error resetting user logs:', error);
+		throw error;
+	}
 
 	return {
 		message: 'All user history were removed',

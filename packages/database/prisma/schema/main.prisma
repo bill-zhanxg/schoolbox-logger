@@ -21,8 +21,6 @@ model AzureUsers {
     userType                    String?
     onPremisesLastSyncDateTime  DateTime?
 
-    history AzureUserHistory[]
-
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 }
@@ -49,9 +47,6 @@ model AzureUserHistory {
     surname                     String?
     userType                    String?
     onPremisesLastSyncDateTime  DateTime?
-
-    user   AzureUsers @relation(fields: [userId], references: [id])
-    userId Int
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt

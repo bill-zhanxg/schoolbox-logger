@@ -110,28 +110,24 @@ console.log(process.env.S3_URL, process.env.S3_ACCESS_KEY_ID, process.env.BUCKET
 			};
 
 			const listedObjects = await s3.send(new ListObjectsV2Command(listParams));
-			console.log(listedObjects.Contents);
 
 			if (!listedObjects.Contents || listedObjects.Contents?.length === 0) return;
 
-			const deleteParams = {
-				Bucket: process.env.BUCKET_NAME,
-				Delete: { Objects: [] as { Key: string }[] },
-			};
+			const deleteKeys = listedObjects.Contents.map(({ Key }) => ({ Key })).filter(
+				(key): key is { Key: string } => !!key.Key,
+			);
 
-			listedObjects.Contents?.forEach(({ Key }) => {
-				if (Key) {
-					deleteParams.Delete.Objects.push({ Key });
-				}
-			});
-
-			await s3.send(new DeleteObjectsCommand(deleteParams));
+			await s3.send(
+				new DeleteObjectsCommand({
+					Bucket: process.env.BUCKET_NAME,
+					Delete: { Objects: deleteKeys },
+				}),
+			);
 
 			if (listedObjects.IsTruncated) {
 				await deleteAllObjects();
 			}
 		};
-
 		await deleteAllObjects();
 
 		console.log('Deleted all objects in the bucket');

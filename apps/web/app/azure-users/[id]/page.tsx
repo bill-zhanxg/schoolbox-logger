@@ -6,12 +6,9 @@ import { auth } from '@/libs/auth';
 import { dayjs } from '@/libs/dayjs';
 import { getSignedUrlMap, nullishToString } from '@/libs/formatValue';
 import { getShimmerImage } from '@/libs/shimmerImage';
-import { getXataClient } from '@/libs/xata';
 import { prisma } from '@repo/database';
 import Image from 'next/image';
 import Link from 'next/link';
-
-const xata = getXataClient();
 
 export default async function User({ params }: { params: Promise<{ id: string }> }) {
 	const { id } = await params;

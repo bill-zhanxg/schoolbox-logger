@@ -11,6 +11,8 @@ import type QueueType from 'queue';
 import { chunk } from './libs/formatValue';
 import { getXataFile } from './libs/getXataFile';
 import { getXataClient } from './libs/xata';
+import { prisma } from '@repo/database';
+import { moveUserToHistory } from '@prisma/client/sql';
 
 const app = express();
 const xata = getXataClient();
@@ -389,42 +391,8 @@ async function fetchAzureUsers(client: Client) {
 	console.log('Moving users to history...');
 	await createUserLog('Moving users to history...', 'verbose');
 
-	let isContinue = true;
-	while (isContinue) {
-		const users = await xata.db.users.getMany({ pagination: { size: 1000 } });
-		if (users.length === 0) break;
-		await xata.transactions
-			.run(
-				users.map(({ id, xata, ...data }) => ({
-					insert: {
-						table: 'users_history',
-						record: {
-							...data,
-							user_id: id,
-						},
-					},
-				})),
-			)
-			.catch(async (err) => {
-				console.error('Failed to move users to history', err);
-				await createUserLog(
-					`Failed to move users to history with message ${err.message} and stack ${err.stack}`,
-					'error',
-				);
-				isContinue = false;
-			});
-		await xata.transactions.run(users.map(({ id }) => ({ delete: { table: 'users', id } }))).catch(async (err) => {
-			console.error('Failed to delete users', err);
-			await createUserLog(`Failed to delete users with message ${err.message} and stack ${err.stack}`, 'error');
-			isContinue = false;
-		});
-	}
-	if (!isContinue) {
-		workingStatus.azure = false;
-		console.log('Stopped logging user because of error when moving users to history');
-		await createUserLog('Stopped logging user because of error when moving users to history', 'error');
-		return;
-	}
+	const res = await prisma.$queryRawTyped(moveUserToHistory())
+	console.log(res)
 	console.log('Successfully moved users to history, starting to get users from Azure...');
 	await createUserLog('Successfully moved users to history, starting to get users from Azure...', 'verbose');
 
