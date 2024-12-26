@@ -31,6 +31,8 @@ export default async function Portraits({ searchParams }: { searchParams: Search
 					take: pageSize,
 				});
 
+	const signUrl = 
+
 	function formatTime(time: Date | null | undefined) {
 		if (!time) return undefined;
 		return dayjs.tz(time, session?.user.timezone ?? undefined).format('L LT');

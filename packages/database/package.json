@@ -8,11 +8,10 @@
 		}
 	},
 	"scripts": {
-		"dev": "tsc -w",
-		"build": "npm run clean && tsc && dotenv -e .env.production.local -- prisma generate --sql && dotenv -e .env.production.local -- prisma migrate deploy",
-		"prisma": "dotenv -e .env.development.local prisma",
-		"prisma:migrate:dev": "dotenv -e .env.development.local prisma migrate dev",
-		"prisma:generateSql": "dotenv -e .env.development.local -- prisma generate --sql",
+		"dev": "dotenv -e ../../.env -c production tsc -w",
+		"build": "npm run clean && tsc && dotenv -e ../../.env -c production -- prisma generate --sql && dotenv -e ../../.env -c production -- prisma migrate deploy",
+		"prisma": "dotenv -e ../../.env -c development prisma",
+		"prisma:generateSql": "dotenv -e ../../.env -c development -- prisma generate --sql",
 		"clean": "rimraf dist"
 	},
 	"dependencies": {

@@ -3,9 +3,9 @@
 	"version": "0.0.0",
 	"private": true,
 	"scripts": {
-		"dev": "next dev",
-		"build": "next build",
-		"start": "next start",
+		"dev": "dotenv -e ../../.env -c development next dev",
+		"build": "dotenv -e ../../.env -c production next build",
+		"start": "dotenv -e ../../.env -c production next start",
 		"lint": "next lint",
 		"pull": "xata pull main",
 		"pull:dev": "xata pull dev"
