@@ -5,14 +5,13 @@ const dynamicImport = new Function('specifier', 'return import(specifier)');
 
 import { AuthProviderCallback, Client } from '@microsoft/microsoft-graph-client';
 import { User } from '@microsoft/microsoft-graph-types';
+import { moveUserToHistory } from '@prisma/client/sql';
+import { prisma } from '@repo/database';
 import * as cheerio from 'cheerio';
 import express, { NextFunction, Request, Response } from 'express';
 import type QueueType from 'queue';
-import { chunk } from './libs/formatValue';
 import { getXataFile } from './libs/getXataFile';
 import { getXataClient } from './libs/xata';
-import { prisma } from '@repo/database';
-import { moveUserToHistory } from '@prisma/client/sql';
 
 const app = express();
 const xata = getXataClient();
@@ -345,21 +344,13 @@ async function fetchSchoolbox(schoolboxUrl: string, schoolboxCookie: string, sta
 				console.log(`Chunk ${c} is finished`);
 
 				// Upload logs to database
-				const chunks = chunk(logs);
-				chunks.forEach((chunk) => {
-					xata.transactions
-						.run(
-							chunk.map((data) => ({
-								insert: {
-									table: 'portrait_logs',
-									record: data,
-								},
-							})),
-						)
-						.catch((err) => {
-							console.error('Failed to upload logs', err);
-						});
-				});
+				prisma.portraitLogs
+					.createMany({
+						data: logs,
+					})
+					.catch((err) => {
+						console.error('Failed to upload logs', err);
+					});
 
 				setTimeout(() => {
 					resolve(undefined);
@@ -370,17 +361,26 @@ async function fetchSchoolbox(schoolboxUrl: string, schoolboxCookie: string, sta
 
 	workingStatus.schoolbox = false;
 	console.log('everything is finished!');
-	await xata.db.portrait_logs.create({ message: 'everything is finished!', level: 'verbose' }).catch(() => {});
+	await prisma.portraitLogs
+		.create({
+			data: {
+				message: 'everything is finished!',
+				level: 'verbose',
+			},
+		})
+		.catch(() => {});
 }
 
 async function fetchAzureUsers(client: Client) {
 	workingStatus.azure = true;
 
 	async function createUserLog(message: string, level: 'verbose' | 'info' | 'warning' | 'error') {
-		await xata.db.user_logs
+		await prisma.userLogs
 			.create({
-				message,
-				level,
+				data: {
+					message,
+					level,
+				},
 			})
 			.catch((err) => {
 				console.error('Failed to create user log into database', err);
@@ -391,8 +391,8 @@ async function fetchAzureUsers(client: Client) {
 	console.log('Moving users to history...');
 	await createUserLog('Moving users to history...', 'verbose');
 
-	const res = await prisma.$queryRawTyped(moveUserToHistory())
-	console.log(res)
+	const res = await prisma.$queryRawTyped(moveUserToHistory());
+	console.log(res);
 	console.log('Successfully moved users to history, starting to get users from Azure...');
 	await createUserLog('Successfully moved users to history, starting to get users from Azure...', 'verbose');
 
@@ -415,15 +415,13 @@ async function fetchAzureUsers(client: Client) {
 				else nextLink = res['@odata.nextLink'];
 
 				// Upload users to database
-				await xata.transactions
-					.run(
-						res.value.map((record) => ({
-							insert: {
-								table: 'users',
-								record,
-							},
+				await prisma.azureUsers
+					.createMany({
+						data: res.value.map(({ id, ...rest }) => ({
+							id: id as string,
+							...rest,
 						})),
-					)
+					})
 					.then(async () => {
 						console.log(`Successfully uploaded user batch with nextLink of ${nextLink} to database`);
 						await createUserLog(`Successfully uploaded user batch with nextLink of ${nextLink} to database`, 'verbose');

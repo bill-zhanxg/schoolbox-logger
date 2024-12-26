@@ -15,11 +15,7 @@ export default async function User({ params }: { params: Promise<{ id: string }>
 	const session = await auth();
 	if (!session) return null;
 
-	const user = await prisma.azureUsers.findUnique({
-		where: {
-			id: parseInt(id, 10),
-		},
-	});
+	const user = await prisma.azureUsers.findUnique({ where: { id } });
 	if (!user) return <ErrorMessage code="404" message="User not found" />;
 
 	const portrait = user.mail

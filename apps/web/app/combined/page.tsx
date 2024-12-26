@@ -93,7 +93,7 @@ export default async function AzureUsers({ searchParams }: { searchParams: Searc
 										<td>{nullishToString(user.userType)}</td>
 										<th>
 											<Link
-												href={user.userId ? `/azure-users/${user.id}` : `/portraits/${user.portraitId}`}
+												href={user.userId ? `/azure-users/${user.userId}` : `/portraits/${user.portraitId}`}
 												className="btn btn-ghost btn-xs"
 											>
 												details

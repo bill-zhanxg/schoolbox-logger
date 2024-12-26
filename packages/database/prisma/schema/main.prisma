@@ -1,5 +1,6 @@
 model AzureUsers {
-    id                          Int       @id @default(autoincrement())
+    // Azure ID
+    id                          String    @id
     accountEnabled              Boolean?
     ageGroup                    String?
     businessPhones              String[]
@@ -47,6 +48,8 @@ model AzureUserHistory {
     surname                     String?
     userType                    String?
     onPremisesLastSyncDateTime  DateTime?
+
+    userId String
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt

@@ -29,9 +29,6 @@ console.log(process.env.S3_URL, process.env.S3_ACCESS_KEY_ID, process.env.BUCKET
 	});
 
 	async function userMigration() {
-		let userIdTracker = 0;
-		const userIdMap = new Map<string, number>();
-
 		console.log('Migrating all users...');
 
 		// Migrate all azure users
@@ -43,15 +40,13 @@ console.log(process.env.S3_URL, process.env.S3_ACCESS_KEY_ID, process.env.BUCKET
 		while (users.records.length > 0) {
 			const allUsers = users.records;
 			const azureUsers = allUsers.map((u) => {
-				userIdTracker++;
 				const { id, xata, ...data } = u;
-				userIdMap.set(id, userIdTracker);
 				const sanitizedData = Object.fromEntries(
 					Object.entries(data).map(([key, value]) => [key, value === null ? undefined : value]),
 				);
 				return {
+					id,
 					...sanitizedData,
-					id: userIdTracker,
 					createdAt: xata.createdAt,
 					updatedAt: xata.updatedAt,
 				};
@@ -65,6 +60,9 @@ console.log(process.env.S3_URL, process.env.S3_ACCESS_KEY_ID, process.env.BUCKET
 		}
 
 		console.log('Migrated all users');
+	}
+
+	async function migrateUserHistory() {
 		console.log('Migrating all user history...');
 
 		// Migrate all AzureUserHistory
@@ -77,16 +75,15 @@ console.log(process.env.S3_URL, process.env.S3_ACCESS_KEY_ID, process.env.BUCKET
 			const allUserHistories = userHistories.records;
 			const azureUserHistories = allUserHistories.map((uh) => {
 				const { id, user_id, xata, ...data } = uh;
+				if (!user_id) {
+					console.warn('User history without user_id', uh);
+				}
 				const sanitizedData = Object.fromEntries(
 					Object.entries(data).map(([key, value]) => [key, value === null ? undefined : value]),
 				);
-				const newUserId = userIdMap.get(user_id ?? '');
-				if (!newUserId) {
-					throw new Error(`User ID not found for user_id: ${user_id}`);
-				}
 				return {
 					...sanitizedData,
-					userId: newUserId,
+					userId: user_id ?? '',
 					createdAt: xata.createdAt,
 					updatedAt: xata.updatedAt,
 				};
@@ -98,6 +95,8 @@ console.log(process.env.S3_URL, process.env.S3_ACCESS_KEY_ID, process.env.BUCKET
 
 			userHistories = await userHistories.nextPage(1000);
 		}
+
+		console.log('Migrated all user history');
 	}
 
 	async function deletePortraits() {
@@ -247,10 +246,11 @@ console.log(process.env.S3_URL, process.env.S3_ACCESS_KEY_ID, process.env.BUCKET
 		}
 	}
 
-	// await userMigration();
+	await userMigration();
+	// await migrateUserHistory();
 	// await deletePortraits();
 	// await xataPortraitUpdateSignedUrlExpiration();
-	await portraitMigration();
+	// await portraitMigration();
 
 	console.log('\x1b[32mEverything is finished!\x1b[0m');
 })();
