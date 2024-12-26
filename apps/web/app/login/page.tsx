@@ -45,7 +45,7 @@ export default async function Login(props: {
 					<h1 className="text-center text-4xl font-bold">Schoolbox Logger Login (Authorized access only)</h1>
 					<p className="p-2 text-center text-gray-500">Make sure you use your school email</p>
 				</div>
-				<LoginBtn login={login} />
+				<LoginBtn loginAction={login} />
 				{/* Error */}
 				{(searchParams.message || searchParams.error) && (
 					<div className="alert alert-error w-4/5 max-w-lg">

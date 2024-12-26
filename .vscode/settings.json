@@ -10,6 +10,7 @@
         "prefersdark",
         "progressbar",
         "Schoolbox",
+        "trgm",
         "Xmark"
     ],
     "typescript.tsdk": "node_modules\\typescript\\lib"

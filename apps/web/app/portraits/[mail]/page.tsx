@@ -4,12 +4,9 @@ import { auth } from '@/libs/auth';
 import { dayjs } from '@/libs/dayjs';
 import { getSignedUrlMap, stringifySearchParam } from '@/libs/formatValue';
 import { SearchParams } from '@/libs/types';
-import { getXataClient } from '@/libs/xata';
 import { Prisma } from '@prisma/client';
 import { prisma } from '@repo/database';
 import Image from 'next/image';
-
-const xata = getXataClient();
 
 export default async function PortraitHistory({
 	params,

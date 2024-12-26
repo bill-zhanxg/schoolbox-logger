@@ -3,11 +3,11 @@
 import { useState } from 'react';
 import { FaMicrosoft } from 'react-icons/fa';
 
-export function LoginBtn({ login }: { login: () => Promise<void> }) {
+export function LoginBtn({ loginAction }: { loginAction: () => Promise<void> }) {
 	const [loading, setLoading] = useState(false);
 
 	return (
-		<form className="w-4/5 max-w-[15rem]" action={login} onSubmit={() => setLoading(true)}>
+		<form className="w-4/5 max-w-[15rem]" action={loginAction} onSubmit={() => setLoading(true)}>
 			<button type="submit" className="btn btn-primary w-full" disabled={loading}>
 				{loading ? (
 					<span className="loading loading-dots loading-lg"></span>
