@@ -15,16 +15,18 @@ export default async function PortraitHistory({
 	params,
 	searchParams,
 }: {
-	params: { mail: string };
+	params: Promise<{ mail: string }>;
 	searchParams: SearchParams;
 }) {
+	const { mail } = await params;
 	const session = await auth();
 	if (!session) return null;
 	const pageSize = 10;
 	const { page } = stringifySearchParam(await searchParams);
 	const filters: Prisma.PortraitsWhereInput = {
 		mail: {
-			contains: decodeURIComponent(params.mail),
+			equals: decodeURIComponent(mail),
+			mode: 'insensitive',
 		},
 	};
 
@@ -52,7 +54,7 @@ export default async function PortraitHistory({
 	return (
 		<div className="flex w-full flex-col items-center gap-4 p-6">
 			<div className="flex flex-col gap-4">
-				<h1 className="text-center text-2xl font-bold">Portrait History for {decodeURIComponent(params.mail)}</h1>
+				<h1 className="text-center text-2xl font-bold">Portrait History for {decodeURIComponent(mail)}</h1>
 				{portraits.map((portrait) => (
 					<div key={portrait.id}>
 						<h2 className="text-xl">
