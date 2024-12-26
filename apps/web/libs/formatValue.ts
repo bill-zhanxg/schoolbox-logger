@@ -146,9 +146,9 @@ export async function getSignedUrlMap<
 	T extends {
 		portrait: string | null;
 	},
->(data: string | T | T[]): Promise<Map<string, string>> {
+>(data?: string | T | T[] | null): Promise<Map<string, string>> {
 	const portraitUrls: Map<string, string> =
-		typeof data === 'string'
+		typeof data === 'string' || !data
 			? new Map()
 			: new Map(
 					await Promise.all(
