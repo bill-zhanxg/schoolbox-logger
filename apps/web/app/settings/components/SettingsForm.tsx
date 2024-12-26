@@ -3,7 +3,7 @@
 import { dayjs } from '@/libs/dayjs';
 import { FormState } from '@/libs/types';
 import { Session } from 'next-auth';
-import { useEffect, useRef, useState, useActionState } from 'react';
+import { useActionState, useEffect, useRef, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import { FaRegCheckCircle, FaRegTimesCircle } from 'react-icons/fa';
 import { Box } from '../../globalComponents/Box';
@@ -75,9 +75,9 @@ export function SettingsForm({ session }: { session: Session }) {
 				<h1 className="font-bold px-4 pt-4">Timezone</h1>
 				<div className="divider m-0"></div>
 				<div className="flex flex-col sm:flex-row justify-center w-full gap-4 items-center pt-0 p-4">
-					<label className="form-control w-full">
-						<div className="form-control max-w-72">
-							<label className="label cursor-pointer gap-2">
+					<label className="flex flex-col form-control w-full gap-2">
+						<div className="form-control">
+							<label className="flex label cursor-pointer gap-2">
 								<input
 									type="checkbox"
 									name="auto_timezone"
