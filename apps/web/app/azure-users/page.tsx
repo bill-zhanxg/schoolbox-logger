@@ -2,14 +2,11 @@ import { auth } from '@/libs/auth';
 import { dayjs } from '@/libs/dayjs';
 import { nullishToString, parseSearchParamsFilter, stringifySearchParam } from '@/libs/formatValue';
 import { SearchParams } from '@/libs/types';
-import { getXataClient } from '@/libs/xata';
 import { prisma } from '@repo/database';
 import Link from 'next/link';
 import { FilterComponent } from '../globalComponents/Filter';
 import { PaginationMenu } from '../globalComponents/PaginationMenu';
 import { GlobalSearch } from '../globalComponents/Search';
-
-const xata = getXataClient();
 
 export default async function AzureUsersPage({ searchParams }: { searchParams: SearchParams }) {
 	const session = await auth();

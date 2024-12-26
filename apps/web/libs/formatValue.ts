@@ -1,6 +1,9 @@
+import { GetObjectCommand } from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { Prisma } from '@prisma/client';
 import { z } from 'zod';
 import { dayjs } from './dayjs';
+import { s3Client } from './s3-sdk';
 import { ColumnsType, azureUserColumns, getOperators, portraitColumns } from './schema';
 import { SearchParams } from './types';
 
@@ -137,4 +140,29 @@ function isEmpty(obj: Object) {
 		}
 	}
 	return true;
+}
+
+export async function getSignedUrlMap<
+	T extends {
+		portrait: string | null;
+	},
+>(data: string | T | T[]): Promise<Map<string, string>> {
+	const portraitUrls: Map<string, string> =
+		typeof data === 'string'
+			? new Map()
+			: new Map(
+					await Promise.all(
+						(Array.isArray(data) ? data : [data])
+							.filter((portrait) => portrait.portrait)
+							.map(async (portrait) => {
+								const command = new GetObjectCommand({
+									Bucket: process.env.BUCKET_NAME,
+									Key: portrait.portrait!,
+								});
+								const url = await getSignedUrl(s3Client, command, { expiresIn: 3600 }); // 1 hour
+								return [portrait.portrait!, url] as const;
+							}),
+					),
+				);
+	return portraitUrls;
 }

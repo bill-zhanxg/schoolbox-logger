@@ -1,17 +1,14 @@
 import Portrait from '@/images/portrait.png';
 import { auth } from '@/libs/auth';
 import { dayjs } from '@/libs/dayjs';
-import { nullishToString, parseSearchParamsFilter, stringifySearchParam } from '@/libs/formatValue';
+import { getSignedUrlMap, nullishToString, parseSearchParamsFilter, stringifySearchParam } from '@/libs/formatValue';
 import { getShimmerImage } from '@/libs/shimmerImage';
 import { SearchParams } from '@/libs/types';
-import { getXataClient } from '@/libs/xata';
 import { prisma } from '@repo/database';
 import Image from 'next/image';
 import Link from 'next/link';
 import { FilterComponent } from '../globalComponents/Filter';
 import { PaginationMenu } from '../globalComponents/PaginationMenu';
-
-const xata = getXataClient();
 
 export default async function Portraits({ searchParams }: { searchParams: SearchParams }) {
 	const session = await auth();
@@ -31,7 +28,7 @@ export default async function Portraits({ searchParams }: { searchParams: Search
 					take: pageSize,
 				});
 
-	const signUrl = 
+	const portraitUrls = await getSignedUrlMap(data);
 
 	function formatTime(time: Date | null | undefined) {
 		if (!time) return undefined;
@@ -51,8 +48,7 @@ export default async function Portraits({ searchParams }: { searchParams: Search
 							<div key={portrait.id} className="card bg-base-100 w-96 shadow-xl">
 								<figure>
 									<Image
-										// TODO: Fix the image
-										src={portrait?.portrait ?? Portrait}
+										src={portrait.portrait ? (portraitUrls.get(portrait.portrait) ?? Portrait) : Portrait}
 										alt={'Portrait'}
 										width={1000}
 										height={1000}

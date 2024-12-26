@@ -5,15 +5,12 @@ const dynamicImport = new Function('specifier', 'return import(specifier)');
 
 import { AuthProviderCallback, Client } from '@microsoft/microsoft-graph-client';
 import { User } from '@microsoft/microsoft-graph-types';
-import { prisma } from '@repo/database';
 import * as cheerio from 'cheerio';
 import express, { NextFunction, Request, Response } from 'express';
 import type QueueType from 'queue';
 import { chunk } from './libs/formatValue';
 import { getXataFile } from './libs/getXataFile';
 import { getXataClient } from './libs/xata';
-
-console.log(process.env.S3_ACCESS_KEY_ID)
 
 const app = express();
 const xata = getXataClient();

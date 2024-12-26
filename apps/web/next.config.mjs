@@ -8,7 +8,11 @@ const nextConfig = {
 			},
 			{
 				protocol: 'https',
-				hostname: '*.xata.sh',
+				hostname: 'schoolbox-logger-development.b0509aa67138f77030e8d3fca617e972.r2.cloudflarestorage.com',
+			},
+			{
+				protocol: 'https',
+				hostname: 'schoolbox-logger.b0509aa67138f77030e8d3fca617e972.r2.cloudflarestorage.com',
 			},
 		],
 	},

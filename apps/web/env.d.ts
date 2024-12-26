@@ -1,7 +1,6 @@
 namespace NodeJS {
 	interface ProcessEnv {
 		BASE_URL: string;
-		AUTH_URL: string;
 		BACKEND_URL: string;
 
 		XATA_BRANCH: string;

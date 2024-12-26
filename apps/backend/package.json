@@ -4,7 +4,7 @@
 	"description": "Log any Schoolbox instance such as users, and provide better search filters with Azure integration",
 	"main": "./dist/index.js",
 	"scripts": {
-		"dev": "dotenv -e ../../.env -c development -- bun --watch --env-file=.env.development.local run src/index.ts",
+		"dev": "dotenv -e ../../.env -c development -- bun --watch --env-file=.env.development.local --env-file=.env.local run src/index.ts",
 		"build": "dotenv -e ../../.env -c production npm run clean && tsc",
 		"start": "dotenv -e ../../.env -c production -- bun --env-file=.env.production.local run dist/index.js",
 		"clean": "rimraf dist",
