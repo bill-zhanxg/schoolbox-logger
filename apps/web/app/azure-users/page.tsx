@@ -35,7 +35,7 @@ export default async function AzureUsersPage({ searchParams }: { searchParams: S
 						skip: page ? (parseInt(page) - 1) * pageSize : 0,
 						take: pageSize,
 					})
-					.catch((e) => e.message as string);
+					.catch((e: Error) => e.message);
 
 	return (
 		<div className="sm:p-6">

@@ -5,7 +5,7 @@
 		".": "./src/client.ts"
 	},
 	"scripts": {
-		"build": "dotenv -e ../../.env -c production -- prisma migrate deploy && dotenv -e ../../.env -c production -- prisma generate --sql",
+		"build": "dotenv -e ../../.env -c production prisma migrate deploy && dotenv -e ../../.env -c production -- prisma generate --sql",
 		"prisma": "dotenv -e ../../.env -c development prisma",
 		"prisma:generateSql": "dotenv -e ../../.env -c development -- prisma generate --sql"
 	},
