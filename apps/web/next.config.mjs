@@ -16,6 +16,9 @@ const nextConfig = {
 			},
 		],
 	},
+	experimental: {
+		cpus: 8,
+	},
 };
 
 export default nextConfig;
