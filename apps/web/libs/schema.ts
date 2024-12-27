@@ -2,47 +2,36 @@ import { getColumns } from './formatValue';
 
 export type ColumnsType = 'azure-users' | 'portrait';
 
-const defaultColumns = [
-	{ name: 'id', type: 'string' },
-	{ name: 'xata.createdAt', type: 'datetime' },
-	{ name: 'xata.updatedAt', type: 'datetime' },
-	{ name: 'xata.version', type: 'string' },
-] as const;
-
 export const azureUserColumns = [
-	...defaultColumns,
-	...[
-		{ name: 'accountEnabled', type: 'bool' },
-		{ name: 'ageGroup', type: 'string' },
-		{ name: 'businessPhones', type: 'multiple' },
-		{ name: 'city', type: 'string' },
-		{ name: 'createdDateTime', type: 'datetime' },
-		{ name: 'department', type: 'string' },
-		{ name: 'displayName', type: 'string' },
-		{ name: 'givenName', type: 'string' },
-		{ name: 'lastPasswordChangeDateTime', type: 'datetime' },
-		{ name: 'mail', type: 'email' },
-		{ name: 'mailNickname', type: 'string' },
-		{ name: 'mobilePhone', type: 'string' },
-		{ name: 'onPremisesDistinguishedName', type: 'string' },
-		{ name: 'onPremisesSamAccountName', type: 'string' },
-		{ name: 'onPremisesSyncEnabled', type: 'bool' },
-		{ name: 'postalCode', type: 'string' },
-		{ name: 'streetAddress', type: 'string' },
-		{ name: 'surname', type: 'string' },
-		{ name: 'userType', type: 'string' },
-		{ name: 'onPremisesLastSyncDateTime', type: 'datetime' },
-	],
+	{ name: 'id', type: 'string' },
+	{ name: 'accountEnabled', type: 'bool' },
+	{ name: 'ageGroup', type: 'string' },
+	{ name: 'businessPhones', type: 'multiple' },
+	{ name: 'city', type: 'string' },
+	{ name: 'createdDateTime', type: 'datetime' },
+	{ name: 'department', type: 'string' },
+	{ name: 'displayName', type: 'string' },
+	{ name: 'givenName', type: 'string' },
+	{ name: 'lastPasswordChangeDateTime', type: 'datetime' },
+	{ name: 'mail', type: 'email' },
+	{ name: 'mailNickname', type: 'string' },
+	{ name: 'mobilePhone', type: 'string' },
+	{ name: 'onPremisesDistinguishedName', type: 'string' },
+	{ name: 'onPremisesSamAccountName', type: 'string' },
+	{ name: 'onPremisesSyncEnabled', type: 'bool' },
+	{ name: 'postalCode', type: 'string' },
+	{ name: 'streetAddress', type: 'string' },
+	{ name: 'surname', type: 'string' },
+	{ name: 'userType', type: 'string' },
+	{ name: 'onPremisesLastSyncDateTime', type: 'datetime' },
 ] as const;
 
 export const portraitColumns = [
-	...defaultColumns,
-	...[
-		{ name: 'mail', type: 'email' },
-		{ name: 'portrait', type: 'file' },
-		{ name: 'schoolbox_id', type: 'int' },
-		{ name: 'name', type: 'text' },
-	],
+	{ name: 'id', type: 'int' },
+	{ name: 'name', type: 'text' },
+	{ name: 'mail', type: 'email' },
+	{ name: 'portrait', type: 'file' },
+	{ name: 'schoolbox_id', type: 'int' },
 ] as const;
 
 export const stringOperators = [
@@ -97,13 +86,13 @@ export function getOperators(type: ColumnsType, name: string) {
 		? columnType === 'string' || columnType === 'email' || columnType === 'text'
 			? stringOperators
 			: columnType === 'bool'
-			? boolOperators
-			: columnType === 'multiple'
-			? multipleOperators
-			: columnType === 'datetime'
-			? datetimeOperators
-			: columnType === 'int'
-			? integerOperators
-			: []
+				? boolOperators
+				: columnType === 'multiple'
+					? multipleOperators
+					: columnType === 'datetime'
+						? datetimeOperators
+						: columnType === 'int'
+							? integerOperators
+							: []
 		: [];
 }

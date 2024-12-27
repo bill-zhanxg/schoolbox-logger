@@ -6,16 +6,12 @@
 		"dev": "dotenv -e ../../.env -c development next dev",
 		"build": "dotenv -e ../../.env -c production next build",
 		"start": "dotenv -e ../../.env -c production next start",
-		"lint": "next lint",
-		"pull": "xata pull main",
-		"pull:dev": "xata pull dev"
+		"lint": "next lint"
 	},
 	"dependencies": {
 		"@auth/prisma-adapter": "^2.7.4",
-		"@auth/xata-adapter": "^1.7.4",
 		"@aws-sdk/s3-request-presigner": "^3.717.0",
 		"@preact/signals-react": "^2.3.0",
-		"@xata.io/client": "^0.30.1",
 		"dayjs": "^1.11.13",
 		"next": "15.1.2",
 		"next-auth": "^5.0.0-beta.25",

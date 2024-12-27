@@ -1,8 +1,10 @@
+// @ts-nocheck
+
 import { DeleteObjectsCommand, ListObjectsV2Command, S3Client } from '@aws-sdk/client-s3';
 import { Upload } from '@aws-sdk/lib-storage';
 import { prisma } from '@repo/database';
 import { v4 } from 'uuid';
-import { getXataClient } from './libs/xata';
+import { getXataClient } from './src/libs/xata';
 
 // Check environment variables
 if (
@@ -180,7 +182,7 @@ console.log(process.env.S3_URL, process.env.S3_ACCESS_KEY_ID, process.env.BUCKET
 			});
 		while (portraits.records.length > 0) {
 			const allPortraits = portraits.records;
-			const azurePortraits: {
+			const schoolboxPortraits: {
 				portrait: string | undefined;
 				schoolbox_id: number;
 				createdAt: Date;
@@ -227,7 +229,7 @@ console.log(process.env.S3_URL, process.env.S3_ACCESS_KEY_ID, process.env.BUCKET
 					key = Key;
 				}
 
-				azurePortraits.push({
+				schoolboxPortraits.push({
 					...sanitizedData,
 					portrait: key,
 					schoolbox_id: schoolbox_id as number,
@@ -237,7 +239,7 @@ console.log(process.env.S3_URL, process.env.S3_ACCESS_KEY_ID, process.env.BUCKET
 			}
 
 			await prisma.portraits.createMany({
-				data: azurePortraits,
+				data: schoolboxPortraits,
 			});
 
 			portraits = await portraits.nextPage(1000);
