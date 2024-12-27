@@ -3,7 +3,7 @@
 	"private": true,
 	"scripts": {
 		"dev": "turbo run dev",
-		"build": "turbo run build --affected",
+		"build": "turbo run build",
 		"start": "turbo run start",
 		"lint": "turbo run lint",
 		"prettier": "prettier --write '**/*.{ts,tsx,css,json}'",
