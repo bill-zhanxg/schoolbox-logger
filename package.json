@@ -6,12 +6,14 @@
 		"build": "turbo run build --affected",
 		"start": "turbo run start",
 		"lint": "turbo run lint",
-		"prettier": "prettier --write '**/*.{ts,tsx,css,json,sql}'",
-		"generate": "turbo run generate"
+		"prettier": "prettier --write '**/*.{ts,tsx,css,json}'",
+		"prisma": "npm run prisma -w @repo/database",
+		"prisma:generateSql": "npm run prisma:generateSql -w @repo/database"
 	},
 	"dependencies": {
 		"@prisma/client": "6.1.0",
 		"database": "^0.0.2",
+		"dotenv-cli": "^8.0.0",
 		"prettier-plugin-sql-cst": "^0.12.0",
 		"prettier-plugin-tailwindcss": "^0.6.9"
 	},

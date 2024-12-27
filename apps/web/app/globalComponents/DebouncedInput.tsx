@@ -1,4 +1,4 @@
-import { InputHTMLAttributes, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export function DebouncedInput({
 	value: initialValue,
@@ -9,7 +9,7 @@ export function DebouncedInput({
 	value: string;
 	onChange: (value: string) => void;
 	debounce?: number;
-} & Omit<InputHTMLAttributes<HTMLInputElement>, 'onChange'>) {
+} & Omit<React.InputHTMLAttributes<HTMLInputElement>, 'onChange'>) {
 	const [value, setValue] = useState(initialValue);
 
 	useEffect(() => {
@@ -27,7 +27,7 @@ export function DebouncedInput({
 
 	return (
 		<input
-			className="input input-bordered input-sm grow w-full lg:w-fit"
+			className="input input-bordered input-sm w-full grow lg:w-fit"
 			{...props}
 			value={value}
 			onChange={(e) => setValue(e.target.value)}

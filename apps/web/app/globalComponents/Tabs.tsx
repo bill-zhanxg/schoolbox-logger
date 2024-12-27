@@ -2,7 +2,7 @@ export function Tabs({ children, breakPoint = 'sm' }: { children: React.ReactNod
 	return (
 		<div
 			role="tablist"
-			className={`tabs tabs-bordered tabs-lg bg-base-200 rounded-xl border-2 border-base-200 shadow-lg shadow-base-200 w-full ${
+			className={`tabs tabs-bordered tabs-lg bg-base-200 border-base-200 shadow-base-200 w-full rounded-xl border-2 shadow-lg ${
 				breakPoint === 'sm' ? 'sm:w-auto' : 'lg:w-auto'
 			}`}
 		>

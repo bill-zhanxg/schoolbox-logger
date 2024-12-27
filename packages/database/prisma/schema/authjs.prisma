@@ -9,8 +9,18 @@ model User {
     // Optional for WebAuthn support
     Authenticator Authenticator[]
 
+    role          Role    @default(blocked)
+    timezone      String?
+    auto_timezone Boolean @default(true)
+
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
+}
+
+enum Role {
+    admin
+    view
+    blocked
 }
 
 model Account {

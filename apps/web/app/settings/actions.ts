@@ -1,15 +1,14 @@
 'use server';
-
 import { auth } from '@/libs/auth';
 import { FormState } from '@/libs/types';
-import { getXataClient } from '@/libs/xata';
+import { prisma } from '@repo/database';
 import { revalidatePath } from 'next/cache';
 import sharp from 'sharp';
 import { z } from 'zod';
 
 const schema = z.object({
 	name: z.string().min(1).max(200).nullish(),
-	email: z.string().min(1).max(200).email().nullish(),
+	email: z.string().min(1).max(200).email().optional(),
 	avatar: z.nullable(
 		z
 			.instanceof(File)
@@ -62,13 +61,20 @@ export async function updateProfile(prevState: FormState, formData: FormData): P
 		else data.auto_timezone = false;
 	}
 
-	const res = await getXataClient().db.nextauth_users.update(session.user.id, {
-		...data,
-		image,
-	});
+	try {
+		await prisma.user.update({
+			where: { id: session.user.id },
+			data: {
+				...data,
+				auto_timezone: data.auto_timezone,
+				image,
+			},
+		});
+	} catch (e) {
+		return { success: false, message: 'Failed to update profile' };
+	}
 
 	revalidatePath('/settings');
-	if (!res) return { success: false, message: 'Failed to update profile' };
 	return {
 		success: true,
 		message: 'Profile updated successfully',

@@ -25,14 +25,14 @@ export function PaginationMenu({ totalPages }: { totalPages: number }) {
 		<Pagination
 			page={currentPage}
 			onPageChange={(page) => router.push(`${pathname}?${createQueryString('page', page.toString())}`)}
-			total={totalPages}
+			total={Math.max(1, totalPages)}
 			boundaries={1}
 			siblings={1}
-			className="mx-auto flex items-center justify-center gap-1 w-full"
+			className="mx-auto flex w-full items-center justify-center gap-1"
 		>
-			<PaginationPrev className="w-[40px] h-[40px] rounded-lg data-[disabled=true]:opacity-50 data-[disabled=true]:cursor-not-allowed border-2 border-base-300 hover:bg-base-200">{`<`}</PaginationPrev>
-			<PaginationList className="w-[40px] h-[40px] relative rounded-lg data-[active=true]:bg-primary data-[active=true]:text-primary-content transition-all border-2 border-base-300 hover:bg-base-200" />
-			<PaginationNext className="w-[40px] h-[40px] rounded-lg data-[disabled=true]:opacity-50 data-[disabled=true]:cursor-not-allowed border-2 border-base-300 hover:bg-base-200">{`>`}</PaginationNext>
+			<PaginationPrev className="border-base-300 hover:bg-base-200 h-[40px] w-[40px] rounded-lg border-2 data-[disabled=true]:cursor-not-allowed data-[disabled=true]:opacity-50">{`<`}</PaginationPrev>
+			<PaginationList className="data-[active=true]:bg-primary data-[active=true]:text-primary-content border-base-300 hover:bg-base-200 relative h-[40px] w-[40px] rounded-lg border-2 transition-all" />
+			<PaginationNext className="border-base-300 hover:bg-base-200 h-[40px] w-[40px] rounded-lg border-2 data-[disabled=true]:cursor-not-allowed data-[disabled=true]:opacity-50">{`>`}</PaginationNext>
 		</Pagination>
 	);
 }

@@ -2,7 +2,7 @@
 
 import { usePathname, useSearchParams } from 'next/navigation';
 import { useRouter } from 'next13-progressbar';
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { DebouncedInput } from './DebouncedInput';
 
 export function GlobalSearch({ ...props }) {
@@ -10,6 +10,7 @@ export function GlobalSearch({ ...props }) {
 	const pathname = usePathname();
 	const router = useRouter();
 	const searchParamsFilter = searchParams.get('search');
+	const [searchFilter, setSearchFilter] = useState(searchParamsFilter || '');
 
 	const createQueryPathName = useCallback(
 		(newParams: { name: string; value: string }[]) => {
@@ -24,13 +25,14 @@ export function GlobalSearch({ ...props }) {
 	);
 
 	return (
-		<div className="flex items-center justify-center mt-4">
+		<div className="mt-4 flex items-center justify-center">
 			<DebouncedInput
 				className="input input-bordered input-sm w-full"
 				type="text"
 				placeholder="Global Search"
-				value={searchParamsFilter || ''}
+				value={searchFilter}
 				onChange={(value) => {
+					setSearchFilter(value);
 					const url = createQueryPathName([
 						{
 							name: 'search',

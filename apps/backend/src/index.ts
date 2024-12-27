@@ -1,24 +1,22 @@
 // file deepcode ignore Ssrf: Strictly authenticated path
 // file deepcode ignore UseCsurfForExpress: This server uses server authentication instead of cookies
 // file deepcode ignore DisablePoweredBy: We don't need to hide the server
-import 'dotenv-flow/config';
 const dynamicImport = new Function('specifier', 'return import(specifier)');
 
+import { S3Client } from '@aws-sdk/client-s3';
+import { Upload } from '@aws-sdk/lib-storage';
 import { AuthProviderCallback, Client } from '@microsoft/microsoft-graph-client';
 import { User } from '@microsoft/microsoft-graph-types';
+import { moveUserToHistory } from '@prisma/client/sql';
 import { prisma } from '@repo/database';
 import * as cheerio from 'cheerio';
 import express, { NextFunction, Request, Response } from 'express';
 import type QueueType from 'queue';
-import { chunk } from './libs/formatValue.js';
-import { getXataFile } from './libs/getXataFile.js';
-import { getXataClient } from './libs/xata.js';
+import { v4 } from 'uuid';
 
 const app = express();
-const xata = getXataClient();
 app.use(express.json());
-
-prisma
+const port = process.env.PORT ?? '8080';
 
 export function authenticatedUser(req: Request, res: Response, next: NextFunction) {
 	const secret = req.headers.authorization;
@@ -94,12 +92,22 @@ app.get('/status', authenticatedUser, async (req, res) => {
 	res.send(workingStatus);
 });
 
-app.listen(process.env.PORT, () => {
-	console.log(`listening on ${process.env.PORT}`);
+app.listen(port, () => {
+	console.log(`listening on ${port}`);
 });
 
 async function fetchSchoolbox(schoolboxUrl: string, schoolboxCookie: string, start: number, end: number) {
 	workingStatus.schoolbox = true;
+
+	// We only create s3 client in the function because we rarely use it
+	const s3 = new S3Client({
+		region: 'auto',
+		endpoint: process.env.S3_URL,
+		credentials: {
+			accessKeyId: process.env.S3_ACCESS_KEY_ID as string,
+			secretAccessKey: process.env.S3_SECRET_ACCESS_KEY as string,
+		},
+	});
 
 	const Queue = (await dynamicImport('queue')).default;
 	// Split the process into chunk of 500 to avoid maximum call stack exceeded
@@ -148,6 +156,7 @@ async function fetchSchoolbox(schoolboxUrl: string, schoolboxCookie: string, sta
 											.then(async (res) => {
 												if (res.ok) {
 													const contentDisposition = res.headers.get('content-disposition');
+													const contentType = res.headers.get('content-type');
 													if (!contentDisposition) {
 														// We want to wait and retry the request
 														logs.push({
@@ -155,7 +164,7 @@ async function fetchSchoolbox(schoolboxUrl: string, schoolboxCookie: string, sta
 															level: 'info',
 														});
 														console.info(`Can not find content-disposition for ${i} portrait, retrying...`);
-														retry = true;
+														retryPortrait = true;
 														await new Promise((resolve) => {
 															setTimeout(() => {
 																resolve(undefined);
@@ -169,44 +178,51 @@ async function fetchSchoolbox(schoolboxUrl: string, schoolboxCookie: string, sta
 													if (matches != null && matches[1]) {
 														const filename = matches[1].replace(/['"]/g, '');
 														const portraitBlob = await res.blob();
-														const portrait = new File([portraitBlob], filename);
 
-														const response = await getXataFile(portrait);
-														if (typeof response === 'string') throw new Error(response);
-														const [fileObject, fileBlob] = response;
-
-														// Database action
-														await xata.db.portraits
-															.create({
-																name,
-																mail: email,
-																schoolbox_id: i,
-																portrait: fileObject ? fileObject : null,
-															})
-															.then(async (portrait) => {
-																if (fileBlob) {
-																	await xata.files.upload(
-																		{ table: 'portraits', column: 'portrait', record: portrait.id },
-																		fileBlob,
-																	);
-																}
-
-																logs.push({
-																	message: `Successfully processed ${i}`,
-																	level: 'verbose',
-																});
-																console.log(`Successfully processed ${i}`);
-															})
-															.catch((err) => {
-																logs.push({
-																	message: `Creating portrait record failed for ${i} with message ${err.message} and stack ${err.stack}`,
-																	level: 'error',
-																});
-																console.error(`Creating portrait record failed for ${i}`, err);
-															})
-															.finally(() => {
-																cb();
+														try {
+															const Key = v4() + `_${filename}`;
+															const uploader = new Upload({
+																client: s3,
+																params: {
+																	Bucket: process.env.BUCKET_NAME,
+																	Key,
+																	Body: portraitBlob,
+																	ContentType: contentType || 'image/jpeg',
+																},
 															});
+															await uploader.done();
+
+															await prisma.portraits.create({
+																data: {
+																	name,
+																	mail: email,
+																	schoolbox_id: i,
+																	portrait: Key,
+																},
+															});
+
+															logs.push({
+																message: `Successfully processed ${i}`,
+																level: 'verbose',
+															});
+															console.log(`Successfully processed ${i}`);
+
+															cb();
+														} catch (err: any) {
+															logs.push({
+																message: `Creating portrait record failed for ${i} with message ${err.message} and stack ${err.stack}, retrying...`,
+																level: 'error',
+															});
+															console.error(`Creating portrait record failed for ${i}, retrying...`, err);
+															retryPortrait = true;
+															await new Promise((resolve) => {
+																setTimeout(() => {
+																	resolve(undefined);
+																}, 1000);
+															});
+															// Stop the current portrait request and retry
+															return;
+														}
 													} else {
 														logs.push({
 															message: `Can not find filename for ${i} portrait`,
@@ -268,10 +284,12 @@ async function fetchSchoolbox(schoolboxUrl: string, schoolboxCookie: string, sta
 									} else {
 										// Log the name if it exists
 										if (name.trim()) {
-											await xata.db.portraits
+											await prisma.portraits
 												.create({
-													name,
-													schoolbox_id: i,
+													data: {
+														name,
+														schoolbox_id: i,
+													},
 												})
 												.then(async (portrait) => {
 													logs.push({
@@ -347,21 +365,13 @@ async function fetchSchoolbox(schoolboxUrl: string, schoolboxCookie: string, sta
 				console.log(`Chunk ${c} is finished`);
 
 				// Upload logs to database
-				const chunks = chunk(logs);
-				chunks.forEach((chunk) => {
-					xata.transactions
-						.run(
-							chunk.map((data) => ({
-								insert: {
-									table: 'portrait_logs',
-									record: data,
-								},
-							})),
-						)
-						.catch((err) => {
-							console.error('Failed to upload logs', err);
-						});
-				});
+				prisma.portraitLogs
+					.createMany({
+						data: logs,
+					})
+					.catch((err) => {
+						console.error('Failed to upload logs', err);
+					});
 
 				setTimeout(() => {
 					resolve(undefined);
@@ -372,17 +382,28 @@ async function fetchSchoolbox(schoolboxUrl: string, schoolboxCookie: string, sta
 
 	workingStatus.schoolbox = false;
 	console.log('everything is finished!');
-	await xata.db.portrait_logs.create({ message: 'everything is finished!', level: 'verbose' }).catch(() => {});
+	await prisma.portraitLogs
+		.create({
+			data: {
+				message: 'everything is finished!',
+				level: 'verbose',
+			},
+		})
+		.catch(() => {});
+
+	s3.destroy();
 }
 
 async function fetchAzureUsers(client: Client) {
 	workingStatus.azure = true;
 
 	async function createUserLog(message: string, level: 'verbose' | 'info' | 'warning' | 'error') {
-		await xata.db.user_logs
+		await prisma.userLogs
 			.create({
-				message,
-				level,
+				data: {
+					message,
+					level,
+				},
 			})
 			.catch((err) => {
 				console.error('Failed to create user log into database', err);
@@ -393,42 +414,8 @@ async function fetchAzureUsers(client: Client) {
 	console.log('Moving users to history...');
 	await createUserLog('Moving users to history...', 'verbose');
 
-	let isContinue = true;
-	while (isContinue) {
-		const users = await xata.db.users.getMany({ pagination: { size: 1000 } });
-		if (users.length === 0) break;
-		await xata.transactions
-			.run(
-				users.map(({ id, xata, ...data }) => ({
-					insert: {
-						table: 'users_history',
-						record: {
-							...data,
-							user_id: id,
-						},
-					},
-				})),
-			)
-			.catch(async (err) => {
-				console.error('Failed to move users to history', err);
-				await createUserLog(
-					`Failed to move users to history with message ${err.message} and stack ${err.stack}`,
-					'error',
-				);
-				isContinue = false;
-			});
-		await xata.transactions.run(users.map(({ id }) => ({ delete: { table: 'users', id } }))).catch(async (err) => {
-			console.error('Failed to delete users', err);
-			await createUserLog(`Failed to delete users with message ${err.message} and stack ${err.stack}`, 'error');
-			isContinue = false;
-		});
-	}
-	if (!isContinue) {
-		workingStatus.azure = false;
-		console.log('Stopped logging user because of error when moving users to history');
-		await createUserLog('Stopped logging user because of error when moving users to history', 'error');
-		return;
-	}
+	const res = await prisma.$queryRawTyped(moveUserToHistory());
+	console.log(res);
 	console.log('Successfully moved users to history, starting to get users from Azure...');
 	await createUserLog('Successfully moved users to history, starting to get users from Azure...', 'verbose');
 
@@ -451,15 +438,13 @@ async function fetchAzureUsers(client: Client) {
 				else nextLink = res['@odata.nextLink'];
 
 				// Upload users to database
-				await xata.transactions
-					.run(
-						res.value.map((record) => ({
-							insert: {
-								table: 'users',
-								record,
-							},
+				await prisma.azureUsers
+					.createMany({
+						data: res.value.map(({ id, ...rest }) => ({
+							id: id as string,
+							...rest,
 						})),
-					)
+					})
 					.then(async () => {
 						console.log(`Successfully uploaded user batch with nextLink of ${nextLink} to database`);
 						await createUserLog(`Successfully uploaded user batch with nextLink of ${nextLink} to database`, 'verbose');

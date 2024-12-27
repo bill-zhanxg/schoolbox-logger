@@ -17,7 +17,7 @@ export function Danger() {
 	const [resetPortraitLogsLoading, setResetPortraitLogsLoading] = useState(false);
 
 	return (
-		<div className="join join-vertical xl:join-horizontal w-full xl:w-auto [&>button]:btn-error">
+		<div className="join join-vertical xl:join-horizontal [&>button]:btn-error w-full xl:w-auto">
 			<button
 				className="btn join-item"
 				onClick={(event) => (event.currentTarget.nextElementSibling as HTMLDialogElement).showModal()}
@@ -26,7 +26,7 @@ export function Danger() {
 			</button>
 			<dialog className="modal">
 				<div className="modal-box">
-					<h3 className="font-bold text-lg text-error">WARNING</h3>
+					<h3 className="text-error text-lg font-bold">WARNING</h3>
 					<p className="py-4">
 						You&apos;re about to move all users records to user_history table. This action is irreversible, are you sure
 						you want to continue?
@@ -61,7 +61,7 @@ export function Danger() {
 			</button>
 			<dialog className="modal">
 				<div className="modal-box">
-					<h3 className="font-bold text-lg text-error">WARNING</h3>
+					<h3 className="text-error text-lg font-bold">WARNING</h3>
 					<p className="py-4">
 						You&apos;re about to remove all records in user_history. This action is irreversible and should not be used
 						unless necessary. Are you sure you want to continue?
@@ -97,7 +97,7 @@ export function Danger() {
 			</button>
 			<dialog className="modal">
 				<div className="modal-box">
-					<h3 className="font-bold text-lg text-error">WARNING</h3>
+					<h3 className="text-error text-lg font-bold">WARNING</h3>
 					<p className="py-4">
 						You&apos;re about to remove all records in portraits table. This action is irreversible and should not be
 						used unless necessary. Are you sure you want to continue?
@@ -133,7 +133,7 @@ export function Danger() {
 			</button>
 			<dialog className="modal">
 				<div className="modal-box">
-					<h3 className="font-bold text-lg text-error">WARNING</h3>
+					<h3 className="text-error text-lg font-bold">WARNING</h3>
 					<p className="py-4">
 						You&apos;re about to remove all user logs. This action is irreversible and should not be used unless
 						necessary. Are you sure you want to continue?
@@ -163,7 +163,7 @@ export function Danger() {
 			</dialog>
 			<dialog className="modal">
 				<div className="modal-box">
-					<h3 className="font-bold text-lg text-error">WARNING</h3>
+					<h3 className="text-error text-lg font-bold">WARNING</h3>
 					<p className="py-4">
 						You&apos;re about to remove all portrait logs. This action is irreversible and should not be used unless
 						necessary. Are you sure you want to continue?

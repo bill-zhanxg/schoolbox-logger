@@ -2,71 +2,51 @@ import { auth } from '@/libs/auth';
 import { dayjs } from '@/libs/dayjs';
 import { nullishToString, parseSearchParamsFilter, stringifySearchParam } from '@/libs/formatValue';
 import { SearchParams } from '@/libs/types';
-import { UsersRecord, getXataClient } from '@/libs/xata';
-import { Page, SelectedPick } from '@xata.io/client';
+import { prisma } from '@repo/database';
 import Link from 'next/link';
 import { FilterComponent } from '../globalComponents/Filter';
-import { GlobalSearch } from '../globalComponents/Search';
 import { PaginationMenu } from '../globalComponents/PaginationMenu';
+import { GlobalSearch } from '../globalComponents/Search';
 
-const xata = getXataClient();
-
-export default async function AzureUsers({ searchParams }: { searchParams: SearchParams }) {
+export default async function AzureUsersPage({ searchParams }: { searchParams: SearchParams }) {
 	const session = await auth();
 	if (!session) return null;
 	const pageSize = 50;
-	const { page, search } = stringifySearchParam(searchParams);
-	const filters = parseSearchParamsFilter(searchParams, 'azure-users');
+	const { page, search } = stringifySearchParam(await searchParams);
+	let filters = parseSearchParamsFilter(await searchParams, 'azure-users');
 
-	const total = (
-		await xata.db.users
-			.filter(filters)
-			.summarize({
-				consistency: 'eventual',
-				summaries: {
-					total: { count: '*' },
-				},
-			})
-			.catch(() => ({ summaries: [{ total: 0 }] }))
-	).summaries[0].total;
-	const data: Page<UsersRecord, Readonly<SelectedPick<UsersRecord, ['*']>>> | string =
+	const total = await prisma.azureUsers.count({ where: typeof filters === 'string' ? undefined : filters });
+
+	if (search && typeof filters !== 'string') {
+		if (!filters) filters = {};
+		if (!filters.displayName)
+			filters.displayName = {
+				contains: search,
+				mode: 'insensitive',
+			};
+	}
+
+	const data =
 		typeof filters === 'string'
 			? filters
-			: search
-			? await xata.search
-					.all(search, {
-						tables: [
-							{
-								table: 'users',
-								filter: filters,
-							},
-						],
+			: await prisma.azureUsers
+					.findMany({
+						where: filters,
+						skip: page ? (parseInt(page) - 1) * pageSize : 0,
+						take: pageSize,
 					})
-					.then((res) => ({
-						records: res.records.map((record) => record.record),
-					}))
-					.catch((err) => err.message)
-			: await xata.db.users
-					.filter(filters)
-					.getPaginated({
-						consistency: 'eventual',
-						pagination: {
-							offset: page ? (parseInt(page) - 1) * pageSize : 0,
-							size: pageSize,
-						},
-					})
-					.catch((err) => err.message);
+					.catch((e: Error) => e.message);
 
 	return (
 		<div className="sm:p-6">
-			<h1 className="text-2xl font-bold text-center">Azure Users</h1>
+			<h1 className="text-center text-2xl font-bold">Azure Users</h1>
 			<GlobalSearch />
 			<FilterComponent type="azure-users" />
 			{typeof data === 'string' ? (
 				<p>{data}</p>
 			) : (
 				<>
-					<div className="overflow-x-auto mb-2">
+					<div className="mb-2 overflow-x-auto">
 						<table className="table [&_em]:bg-yellow-300">
 							{/* head */}
 							<thead>
@@ -83,34 +63,32 @@ export default async function AzureUsers({ searchParams }: { searchParams: Searc
 								</tr>
 							</thead>
 							<tbody>
-								{data.records.map((user) => (
+								{data.map((user) => (
 									<tr key={user.id}>
 										<td>
 											<div>
-												<div className="font-bold">
-													<GetTdChildren user={user} objKey="displayName" />
-												</div>
-												<div className="flex gap-1 max-w-32 lg:max-w-none whitespace-nowrap overflow-hidden">
-													<span className="badge badge-ghost badge-sm rounded-sm px-0.5">
-														<GetTdChildren user={user} objKey="givenName" />
+												<div className="font-bold">{nullishToString(user.displayName)}</div>
+												<div className="flex max-w-32 gap-1 overflow-hidden whitespace-nowrap lg:max-w-none">
+													<span className="badge badge-ghost badge-sm rounded-xs px-0.5">
+														{nullishToString(user.givenName)}
 													</span>
-													<span className="badge badge-ghost badge-sm rounded-sm px-0.5">
-														<GetTdChildren user={user} objKey="surname" />
+													<span className="badge badge-ghost badge-sm rounded-xs px-0.5">
+														{nullishToString(user.surname)}
 													</span>
 												</div>
 											</div>
 										</td>
-										<td>{<GetTdChildren user={user} objKey="postalCode" />}</td>
-										<td>{<GetTdChildren user={user} objKey="city" />}</td>
-										<td>{<GetTdChildren user={user} objKey="mailNickname" />}</td>
-										<td>{<GetTdChildren user={user} objKey="department" />}</td>
+										<td>{nullishToString(user.postalCode)}</td>
+										<td>{nullishToString(user.city)}</td>
+										<td>{nullishToString(user.mailNickname)}</td>
+										<td>{nullishToString(user.department)}</td>
 										<td>{user.accountEnabled?.toString() ?? '---'}</td>
 										<td>
 											{user.createdDateTime
 												? dayjs.tz(user.createdDateTime, session.user.timezone ?? undefined).format('L LT')
 												: '---'}
 										</td>
-										<td>{<GetTdChildren user={user} objKey="userType" />}</td>
+										<td>{nullishToString(user.userType)}</td>
 										<th>
 											<Link href={`/azure-users/${user.id}`} className="btn btn-ghost btn-xs">
 												details
@@ -125,23 +103,5 @@ export default async function AzureUsers({ searchParams }: { searchParams: Searc
 				</>
 			)}
 		</div>
-	);
-}
-
-function GetTdChildren({
-	user,
-	objKey,
-}: {
-	user: Readonly<SelectedPick<UsersRecord, ['*']>>;
-	objKey: keyof Readonly<SelectedPick<UsersRecord, ['*']>>;
-}) {
-	return (user.xata as any).highlight?.[objKey] ? (
-		<span
-			dangerouslySetInnerHTML={{
-				__html: (user.xata as any).highlight[objKey],
-			}}
-		/>
-	) : (
-		nullishToString(user[objKey] as any)
 	);
 }

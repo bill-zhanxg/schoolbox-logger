@@ -1,12 +1,10 @@
 'use client';
-
 import { ErrorMessage } from '@/app/globalComponents/ErrorMessage';
 import { UserAvatar } from '@/app/globalComponents/UserAvatar';
-import { NextauthUsersRecord } from '@/libs/xata';
-import { JSONData, SelectedPick } from '@xata.io/client';
+import { User } from '@prisma/client';
 import { useRouter } from 'next13-progressbar';
-import { useEffect, useRef, useState } from 'react';
-import { useFormState, useFormStatus } from 'react-dom';
+import { useActionState, useEffect, useRef, useState } from 'react';
+import { useFormStatus } from 'react-dom';
 import { changeRole } from '../actions';
 
 export type ChangeRoleState = null | {
@@ -19,13 +17,13 @@ export function UserTable({
 	users: serverUsers,
 }: {
 	myId?: string;
-	users: (JSONData<SelectedPick<NextauthUsersRecord, ('email' | 'name' | 'image' | 'role')[]>> & {
+	users: (User & {
 		checked: boolean;
 	})[];
 }) {
 	const router = useRouter();
 
-	const [state, formAction] = useFormState<ChangeRoleState, FormData>(changeRole, null);
+	const [state, formAction] = useActionState<ChangeRoleState, FormData>(changeRole, null);
 
 	const [users, setUsers] = useState(serverUsers);
 	const [search, setSearch] = useState('');
@@ -66,19 +64,19 @@ export function UserTable({
 
 	return (
 		<>
-			<main className="flex flex-col items-center gap-4 p-4 overflow-auto w-full">
+			<main className="flex w-full flex-col items-center gap-4 overflow-auto p-4">
 				{users.length < 1 ? (
 					<div>Nothing Here</div>
 				) : (
-					<div className="flex flex-col gap-4 bg-base-100 rounded-xl border-2 border-base-200 shadow-lg shadow-base-200 p-4 overflow-auto w-full">
-						<div className="flex flex-col lg:flex-row gap-4 justify-center items-center">
-							<h2 className="sticky left-0 text-xl text-center text-primary">Users Management</h2>
+					<div className="bg-base-100 border-base-200 shadow-base-200 flex w-full flex-col gap-4 overflow-auto rounded-xl border-2 p-4 shadow-lg">
+						<div className="flex flex-col items-center justify-center gap-4 lg:flex-row">
+							<h2 className="text-primary sticky left-0 text-center text-xl">Users Management</h2>
 							<input
 								type="text"
 								placeholder="Search Users"
 								value={search}
 								onChange={(e) => setSearch(e.target.value)}
-								className="static lg:absolute right-6 input input-bordered w-full lg:max-w-xs"
+								className="input input-bordered static right-6 w-full lg:absolute lg:max-w-xs"
 							/>
 						</div>
 						<table className="table">
@@ -124,7 +122,7 @@ export function UserTable({
 										<td>
 											<div className="flex items-center gap-3">
 												<div className="avatar">
-													<div className="mask mask-squircle w-12 h-12">
+													<div className="mask mask-squircle h-12 w-12">
 														<UserAvatar
 															user={
 																user as {
@@ -157,22 +155,22 @@ export function UserTable({
 			</main>
 			<dialog ref={blockUserDialogRef} className="modal">
 				<div className="modal-box max-w-4xl">
-					<h3 className="font-bold text-lg">Change Users&apos; Role</h3>
+					<h3 className="text-lg font-bold">Change Users&apos; Role</h3>
 					<p className="py-4">
 						You will be changing the role of the selected users. This will limit or grant access to certain resources.
 					</p>
 					<form action={formAction}>
 						<input type="hidden" name="users" value={users.filter((user) => user.checked).map(({ id }) => id)} />
-						<div className="flex flex-col sm:flex-row justify-around">
-							<label className="flex flex-row-reverse sm:flex-row label cursor-pointer gap-2">
+						<div className="flex flex-col justify-around sm:flex-row">
+							<label className="label flex cursor-pointer flex-row-reverse gap-2 sm:flex-row">
 								<input type="radio" name="role" value="blocked" className="radio radio-success" required />
 								<span className="label-text">Blocked (Default)</span>
 							</label>
-							<label className="flex flex-row-reverse sm:flex-row label cursor-pointer gap-2">
+							<label className="label flex cursor-pointer flex-row-reverse gap-2 sm:flex-row">
 								<input type="radio" name="role" value="admin" className="radio radio-warning" />
 								<span className="label-text">Admin</span>
 							</label>
-							<label className="flex flex-row-reverse sm:flex-row label cursor-pointer gap-2">
+							<label className="label flex cursor-pointer flex-row-reverse gap-2 sm:flex-row">
 								<input type="radio" name="role" value="view" className="radio radio-error" />
 								<span className="label-text">View</span>
 							</label>
@@ -181,7 +179,7 @@ export function UserTable({
 							<div role="alert" className="alert alert-error">
 								<svg
 									xmlns="http://www.w3.org/2000/svg"
-									className="stroke-current shrink-0 h-6 w-6"
+									className="h-6 w-6 shrink-0 stroke-current"
 									fill="none"
 									viewBox="0 0 24 24"
 								>
@@ -203,15 +201,15 @@ export function UserTable({
 				<form id="close_dialog" method="dialog" />
 			</dialog>
 			{users.some((user) => user.checked) && (
-				<div className="flex justify-center sticky bottom-5 px-4 w-full z-10">
-					<div className="flex flex-col sm:flex-row gap-2 items-center justify-between p-4 bg-base-200 shadow-md border-solid border-2 border-base-300 rounded-lg h-32 sm:h-16 w-full">
+				<div className="sticky bottom-5 z-10 flex w-full justify-center px-4">
+					<div className="bg-base-200 border-base-300 flex h-32 w-full flex-col items-center justify-between gap-2 rounded-lg border-2 border-solid p-4 shadow-md sm:h-16 sm:flex-row">
 						<span className="flex items-center gap-2">
-							<span className="flex justify-center items-center bg-primary rounded-md h-6 w-6 text-white">
+							<span className="bg-primary flex h-6 w-6 items-center justify-center rounded-md text-white">
 								{users.filter((user) => user.checked).length}
 							</span>
 							Users Selected
 						</span>
-						<div className="flex justify-center items-center h-full gap-2">
+						<div className="flex h-full items-center justify-center gap-2">
 							<button className="btn btn-neutral" onClick={() => handleSelectAll(false)}>
 								Cancel
 							</button>

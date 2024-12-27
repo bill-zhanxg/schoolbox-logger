@@ -1,8 +1,7 @@
 'use server';
-
 import { auth } from '@/libs/auth';
 import { isAdmin } from '@/libs/checkPermission';
-import { getXataClient } from '@/libs/xata';
+import { prisma } from '@repo/database';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { ChangeRoleState } from './components/UserTable';
@@ -30,23 +29,17 @@ export async function changeRole(prevState: ChangeRoleState, formData: FormData)
 
 	const { users, role } = parse.data;
 
-	return await getXataClient()
-		.transactions.run(
-			users.map((user) => ({
-				update: {
-					table: 'nextauth_users',
-					id: user,
-					fields: {
-						role,
-					},
-				},
-			})),
-		)
-		.then(() => {
-			revalidatePath('/users');
-			return { success: true, message: 'Success' };
-		})
-		.catch((error) => {
-			return { success: false, message: error.message };
-		});
+	await prisma.user.updateMany({
+		where: {
+			id: {
+				in: users,
+			},
+		},
+		data: {
+			role,
+		},
+	});
+
+	revalidatePath('/users');
+	return { success: true, message: 'Success' };
 }

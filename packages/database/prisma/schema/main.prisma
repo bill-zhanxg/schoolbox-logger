@@ -1,5 +1,6 @@
 model AzureUsers {
-    id                          Int       @id @default(autoincrement())
+    // Azure ID
+    id                          String    @id
     accountEnabled              Boolean?
     ageGroup                    String?
     businessPhones              String[]
@@ -20,8 +21,6 @@ model AzureUsers {
     surname                     String?
     userType                    String?
     onPremisesLastSyncDateTime  DateTime?
-
-    history AzureUserHistory[]
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
@@ -50,8 +49,7 @@ model AzureUserHistory {
     userType                    String?
     onPremisesLastSyncDateTime  DateTime?
 
-    user   AzureUsers @relation(fields: [userId], references: [id])
-    userId Int
+    userId String
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
@@ -60,8 +58,8 @@ model AzureUserHistory {
 model Portraits {
     id           Int     @id @default(autoincrement())
     name         String?
-    mail         String
-    portrait     String
+    mail         String?
+    portrait     String?
     schoolbox_id Int
 
     createdAt DateTime @default(now())

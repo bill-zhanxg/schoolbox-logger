@@ -3,43 +3,47 @@
 	"version": "0.0.0",
 	"private": true,
 	"scripts": {
-		"dev": "next dev",
-		"build": "next build",
-		"start": "next start",
-		"lint": "next lint",
-		"pull": "xata pull main",
-		"pull:dev": "xata pull dev"
+		"dev": "dotenv -e ../../.env -c development next dev",
+		"build": "rimraf -g node_modules/{react,react-dom} && dotenv -e ../../.env -c production next build",
+		"start": "dotenv -e ../../.env -c production next start",
+		"lint": "next lint"
 	},
 	"dependencies": {
-		"@auth/xata-adapter": "^1.4.1",
-		"@preact/signals-react": "^2.0.2",
-		"@xata.io/client": "^0.29.5",
-		"dayjs": "^1.11.11",
-		"next": "14.2.4",
-		"next-auth": "^5.0.0-beta.19",
-		"next13-progressbar": "^1.2.1",
-		"react": "^18",
-		"react-dom": "^18",
-		"react-icons": "^5.2.1",
+		"@auth/prisma-adapter": "^2.7.4",
+		"@aws-sdk/s3-request-presigner": "^3.717.0",
+		"@preact/signals-react": "^2.3.0",
+		"@repo/database": "*",
+		"dayjs": "^1.11.13",
+		"next": "15.1.3",
+		"next-auth": "^5.0.0-beta.25",
+		"next13-progressbar": "^1.2.2",
+		"react": "19.0.0",
+		"react-dom": "19.0.0",
+		"react-icons": "^5.4.0",
 		"react-unstyled-pagination": "^1.0.4",
-		"sharp": "^0.33.4",
-		"uuid": "^10.0.0",
-		"zod": "^3.23.8"
+		"sharp": "^0.33.5",
+		"uuid": "^11.0.3",
+		"zod": "^3.24.1"
 	},
 	"devDependencies": {
-		"@types/node": "^20",
-		"@types/react": "^18",
-		"@types/react-dom": "^18",
+		"@tailwindcss/postcss": "^4.0.0-beta.8",
+		"@types/node": "^22.10.2",
+		"@types/react": "19.0.2",
+		"@types/react-dom": "19.0.2",
 		"@types/uuid": "^10.0.0",
-		"autoprefixer": "^10.4.19",
-		"daisyui": "^4.12.10",
-		"eslint": "^8",
-		"eslint-config-next": "14.2.4",
-		"postcss": "^8",
-		"tailwindcss": "^3.4.4",
-		"typescript": "^5.5.2"
+		"daisyui": "^5.0.0-alpha.56",
+		"eslint": "^9.17.0",
+		"eslint-config-next": "15.1.3",
+		"postcss": "^8.4.49",
+		"rimraf": "^6.0.1",
+		"tailwindcss": "^4.0.0-beta.8",
+		"typescript": "^5.7.2"
 	},
 	"engines": {
 		"node": ">=20.x.x"
+	},
+	"overrides": {
+		"@types/react": "19.0.2",
+		"@types/react-dom": "19.0.2"
 	}
 }
