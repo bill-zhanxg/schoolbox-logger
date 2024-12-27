@@ -34,4 +34,6 @@ export const authConfig = NextAuth({
 		// TODO: Add support for WebAuthn
 		enableWebAuthn: true,
 	},
+
+	trustHost: true,
 });
