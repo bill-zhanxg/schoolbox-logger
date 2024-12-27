@@ -171,15 +171,11 @@ console.log(process.env.S3_URL, process.env.S3_ACCESS_KEY_ID, process.env.BUCKET
 	async function portraitMigration() {
 		console.log('Migrating all portraits...');
 
-		let portraits = await xata.db.portraits
-			.select(['*', 'portrait.signedUrl', 'portrait.name'])
-			// TODO: remove
-			.sort('name', 'asc')
-			.getPaginated({
-				pagination: {
-					size: 1000,
-				},
-			});
+		let portraits = await xata.db.portraits.select(['*', 'portrait.signedUrl', 'portrait.name']).getPaginated({
+			pagination: {
+				size: 1000,
+			},
+		});
 		while (portraits.records.length > 0) {
 			const allPortraits = portraits.records;
 			const schoolboxPortraits: {

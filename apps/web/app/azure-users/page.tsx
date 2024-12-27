@@ -26,7 +26,6 @@ export default async function AzureUsersPage({ searchParams }: { searchParams: S
 			};
 	}
 
-	// TODO: full text search function
 	const data =
 		typeof filters === 'string'
 			? filters
