@@ -34,23 +34,23 @@ export default async function RootLayout({
 						</h1>
 					) : (
 						<>
-							<div className="navbar bg-base-200 border-b-2 border-base-300 shadow-lg shadow-base-300">
+							<div className="navbar bg-base-200 border-base-300 shadow-base-300 border-b-2 shadow-lg">
 								<div className="navbar-start">
-									<Link id="home-btn" href="/" className="btn btn-ghost normal-case text-xl">
+									<Link id="home-btn" href="/" className="btn btn-ghost text-xl normal-case">
 										<FaHome />
 									</Link>
 								</div>
 								<NavBar session={session} />
 								<div className="navbar-end">
 									<div className="dropdown dropdown-end">
-										<div className="flex items-center h-full">
+										<div className="flex h-full items-center">
 											<label tabIndex={0} className="btn btn-ghost btn-circle avatar">
 												<UserAvatar user={session.user} className="rounded-full" />
 											</label>
 										</div>
 										<ul
 											tabIndex={0}
-											className="menu menu-md dropdown-content mt-3 z-100 p-2 shadow-xl bg-base-100 rounded-box w-52 border border-primary"
+											className="menu menu-md dropdown-content bg-base-100 rounded-box border-primary z-100 mt-3 w-52 border p-2 shadow-xl"
 										>
 											<li>
 												<Link href="/settings">User Settings</Link>
@@ -66,7 +66,7 @@ export default async function RootLayout({
 													<button
 														type="submit"
 														id="logout-btn"
-														className="bg-red-600 hover:bg-red-800 text-white rounded-lg px-4 py-2 text-sm w-full transition duration-200 active:bg-red-950"
+														className="w-full rounded-lg bg-red-600 px-4 py-2 text-sm text-white transition duration-200 hover:bg-red-800 active:bg-red-950"
 													>
 														Logout
 													</button>

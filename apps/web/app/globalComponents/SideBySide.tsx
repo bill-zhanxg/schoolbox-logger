@@ -8,7 +8,7 @@ export function SideBySide({
 	fontSize?: string;
 }) {
 	return (
-		<span className="flex flex-col sm:flex-row justify-between gap-2 w-full">
+		<span className="flex w-full flex-col justify-between gap-2 sm:flex-row">
 			<h4 className={`${fontSize} font-bold text-nowrap`}>{title}</h4>
 			<p className={fontSize}>{value}</p>
 		</span>

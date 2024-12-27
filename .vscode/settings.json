@@ -1,17 +1,17 @@
 {
-    "css.lint.unknownAtRules": "ignore",
-    "cSpell.words": [
-        "datetime",
-        "entra",
-        "Kysely",
-        "neondatabase",
-        "odata",
-        "OPDN",
-        "prefersdark",
-        "progressbar",
-        "Schoolbox",
-        "trgm",
-        "Xmark"
-    ],
-    "typescript.tsdk": "node_modules\\typescript\\lib"
+	"css.lint.unknownAtRules": "ignore",
+	"cSpell.words": [
+		"datetime",
+		"entra",
+		"Kysely",
+		"neondatabase",
+		"odata",
+		"OPDN",
+		"prefersdark",
+		"progressbar",
+		"Schoolbox",
+		"trgm",
+		"Xmark"
+	],
+	"typescript.tsdk": "node_modules\\typescript\\lib"
 }

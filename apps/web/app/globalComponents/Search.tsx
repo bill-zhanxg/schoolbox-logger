@@ -25,7 +25,7 @@ export function GlobalSearch({ ...props }) {
 	);
 
 	return (
-		<div className="flex items-center justify-center mt-4">
+		<div className="mt-4 flex items-center justify-center">
 			<DebouncedInput
 				className="input input-bordered input-sm w-full"
 				type="text"

@@ -44,20 +44,20 @@ export default async function LogData() {
 
 	return (
 		<div className="flex flex-col gap-6 p-6">
-			<div className="flex flex-col gap-2 w-full bg-base-100 rounded-xl border-2 border-base-200 shadow-lg shadow-base-200 p-4">
-				<h1 className="text-2xl font-bold text-center">Backend Working Status</h1>
+			<div className="bg-base-100 border-base-200 shadow-base-200 flex w-full flex-col gap-2 rounded-xl border-2 p-4 shadow-lg">
+				<h1 className="text-center text-2xl font-bold">Backend Working Status</h1>
 				{typeof status === 'string' ? (
 					<div role="alert" className="alert alert-error">
 						<FaRegTimesCircle size={20} />
 						<span>{status}</span>
 					</div>
 				) : (
-					<div className="flex flex-col sm:flex-row items-center justify-around">
-						<div className="flex gap-2 items-center">
+					<div className="flex flex-col items-center justify-around sm:flex-row">
+						<div className="flex items-center gap-2">
 							<p>Azure Logging Status</p>
 							<div className={`badge badge-sm ${status.azure ? 'badge-error' : 'badge-success'}`}></div>
 						</div>
-						<div className="flex gap-2 items-center">
+						<div className="flex items-center gap-2">
 							<p>Schoolbox Logging Status</p>
 							<div className={`badge badge-sm ${status.schoolbox ? 'badge-error' : 'badge-success'}`}></div>
 						</div>
@@ -65,7 +65,7 @@ export default async function LogData() {
 				)}
 			</div>
 			<ManageData />
-			<div className="flex flex-col items-center gap-2 rounded-xl border-2 border-error shadow-lg shadow-error p-4 w-full">
+			<div className="border-error shadow-error flex w-full flex-col items-center gap-2 rounded-xl border-2 p-4 shadow-lg">
 				<h1 className="font-bold">Danger Zone</h1>
 				<p className="text-center">Those action should only be used when necessary</p>
 				<Danger />

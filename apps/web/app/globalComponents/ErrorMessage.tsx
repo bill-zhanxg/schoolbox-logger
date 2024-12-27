@@ -2,9 +2,9 @@ import Link from 'next/link';
 
 export function ErrorMessage({ code, message }: { code: string; message: string }) {
 	return (
-		<div className="flex justify-center items-center h-full">
-			<div className="flex flex-col justify-center items-center w-full max-w-sm">
-				<div className="flex justify-center items-center flex-row w-full py-4">
+		<div className="flex h-full items-center justify-center">
+			<div className="flex w-full max-w-sm flex-col items-center justify-center">
+				<div className="flex w-full flex-row items-center justify-center py-4">
 					<h1 className="text-2xl font-bold">{code}</h1>
 					<div className="divider divider-horizontal"></div>
 					<h1 className="text-xl font-semibold">{message}</h1>

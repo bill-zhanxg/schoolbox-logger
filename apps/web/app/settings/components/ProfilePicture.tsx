@@ -28,7 +28,7 @@ export function ProfilePicture({
 	return (
 		<label
 			htmlFor="avatar"
-			className="avatar hover:cursor-pointer h-24 w-24 rounded-full ring-3 ring-primary ring-offset-base-100 ring-offset-2 overflow-hidden mt-2 backdrop-opacity-10 bg-white/30"
+			className="avatar ring-primary ring-offset-base-100 mt-2 h-24 w-24 overflow-hidden rounded-full bg-white/30 ring-3 ring-offset-2 backdrop-opacity-10 hover:cursor-pointer"
 		>
 			<UserAvatar user={userState} />
 			<input
@@ -49,7 +49,9 @@ export function ProfilePicture({
 					});
 				}}
 			/>
-			<span className="absolute bottom-0 right-0 bg-base-content/80 text-base-100 rounded-tl-full p-4 z-10"><FaPen /></span>
+			<span className="bg-base-content/80 text-base-100 absolute right-0 bottom-0 z-10 rounded-tl-full p-4">
+				<FaPen />
+			</span>
 		</label>
 	);
 }

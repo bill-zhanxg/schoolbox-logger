@@ -6,7 +6,7 @@ export function LogoutButton() {
 	return (
 		<button
 			id="logout-btn"
-			className="bg-red-600 hover:bg-red-800 text-white"
+			className="bg-red-600 text-white hover:bg-red-800"
 			onClick={(e) => {
 				e.preventDefault();
 				signOut({

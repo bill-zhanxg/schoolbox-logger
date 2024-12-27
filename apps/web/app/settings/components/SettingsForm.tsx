@@ -26,13 +26,13 @@ export function SettingsForm({ session }: { session: Session }) {
 	const [autoTimezone, setAutoTimezone] = useState(session.user.auto_timezone ?? true);
 
 	return (
-		<form className="flex flex-col gap-4 w-full" action={formAction}>
+		<form className="flex w-full flex-col gap-4" action={formAction}>
 			<Box>
-				<h1 className="font-bold px-4">Profile Settings</h1>
+				<h1 className="px-4 font-bold">Profile Settings</h1>
 				<div className="divider m-0"></div>
-				<div className="flex flex-col sm:flex-row justify-center w-full gap-4 items-center pt-0 p-4">
+				<div className="flex w-full flex-col items-center justify-center gap-4 p-4 pt-0 sm:flex-row">
 					{/* Input Name */}
-					<div className="flex justify-center flex-col basis-3/4 w-full">
+					<div className="flex w-full basis-3/4 flex-col justify-center">
 						<label className="form-control w-full">
 							<div className="label">
 								<span className="label-text text-md font-bold">Name</span>
@@ -60,10 +60,10 @@ export function SettingsForm({ session }: { session: Session }) {
 					</div>
 
 					{/* Add profile upload */}
-					<div className="flex justify-center items-center basis-1/4 h-full">
-						<label className="relative! form-control mt-4">
+					<div className="flex h-full basis-1/4 items-center justify-center">
+						<label className="form-control relative! mt-4">
 							<div className="label">
-								<span className="label-text text-md font-bold text-center">Profile picture</span>
+								<span className="label-text text-md text-center font-bold">Profile picture</span>
 							</div>
 							<ProfilePicture user={session.user} />
 						</label>
@@ -72,12 +72,12 @@ export function SettingsForm({ session }: { session: Session }) {
 			</Box>
 
 			<Box>
-				<h1 className="font-bold px-4 pt-4">Timezone</h1>
+				<h1 className="px-4 pt-4 font-bold">Timezone</h1>
 				<div className="divider m-0"></div>
-				<div className="flex flex-col sm:flex-row justify-center w-full gap-4 items-center pt-0 p-4">
-					<label className="flex flex-col form-control w-full gap-2">
+				<div className="flex w-full flex-col items-center justify-center gap-4 p-4 pt-0 sm:flex-row">
+					<label className="form-control flex w-full flex-col gap-2">
 						<div className="form-control">
-							<label className="flex label cursor-pointer gap-2">
+							<label className="label flex cursor-pointer gap-2">
 								<input
 									type="checkbox"
 									name="auto_timezone"
@@ -122,7 +122,7 @@ function Submit() {
 	const { pending } = useFormStatus();
 
 	return (
-		<button type="submit" disabled={pending} className="sticky bottom-2 btn btn-primary">
+		<button type="submit" disabled={pending} className="btn btn-primary sticky bottom-2">
 			Update Profile
 		</button>
 	);

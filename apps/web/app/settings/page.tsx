@@ -9,11 +9,11 @@ export default async function Profile() {
 	if (!session) return Unauthorized();
 
 	return (
-		<div className="flex justify-center w-full">
-			<div className="w-full max-w-[50rem] m-4 flex gap-8 flex-col">
-				<Box className="flex-row p-2 items-center">
+		<div className="flex w-full justify-center">
+			<div className="m-4 flex w-full max-w-[50rem] flex-col gap-8">
+				<Box className="flex-row items-center p-2">
 					<div className="avatar p-4">
-						<div className="avatar w-16 rounded-full ring-3 ring-primary ring-offset-base-100 ring-offset-2">
+						<div className="avatar ring-primary ring-offset-base-100 w-16 rounded-full ring-3 ring-offset-2">
 							<UserAvatar user={session.user} />
 						</div>
 					</div>
