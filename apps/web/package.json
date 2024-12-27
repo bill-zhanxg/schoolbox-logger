@@ -5,7 +5,7 @@
 	"scripts": {
 		"dev": "dotenv -e ../../.env -c development next dev",
 		"build": "rimraf -g node_modules/{react,react-dom} && dotenv -e ../../.env -c production next build",
-		"start": "dotenv -e ../../.env -c production next start",
+		"start": "dotenv -e ../../.env -c production next start -p 3009",
 		"lint": "next lint"
 	},
 	"dependencies": {
