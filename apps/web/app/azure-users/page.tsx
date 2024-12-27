@@ -13,19 +13,30 @@ export default async function AzureUsersPage({ searchParams }: { searchParams: S
 	if (!session) return null;
 	const pageSize = 50;
 	const { page, search } = stringifySearchParam(await searchParams);
-	const filters = parseSearchParamsFilter(await searchParams, 'azure-users');
+	let filters = parseSearchParamsFilter(await searchParams, 'azure-users');
 
 	const total = await prisma.azureUsers.count({ where: typeof filters === 'string' ? undefined : filters });
+
+	if (search && typeof filters !== 'string') {
+		if (!filters) filters = {};
+		if (!filters.displayName)
+			filters.displayName = {
+				contains: search,
+				mode: 'insensitive',
+			};
+	}
 
 	// TODO: full text search function
 	const data =
 		typeof filters === 'string'
 			? filters
-			: await prisma.azureUsers.findMany({
-					where: filters,
-					skip: page ? (parseInt(page) - 1) * pageSize : 0,
-					take: pageSize,
-				});
+			: await prisma.azureUsers
+					.findMany({
+						where: filters,
+						skip: page ? (parseInt(page) - 1) * pageSize : 0,
+						take: pageSize,
+					})
+					.catch((e) => e.message as string);
 
 	return (
 		<div className="sm:p-6">
