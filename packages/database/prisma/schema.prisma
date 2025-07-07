@@ -6,7 +6,8 @@
 
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["prismaSchemaFolder", "relationJoins", "typedSql", "driverAdapters", "postgresqlExtensions"]
+  previewFeatures = ["relationJoins", "typedSql", "driverAdapters", "postgresqlExtensions"]
+  // output          = "../../../.prisma/client"
 }
 
 datasource db {

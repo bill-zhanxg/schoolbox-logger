@@ -9,13 +9,13 @@
 		"lint": "next lint"
 	},
 	"dependencies": {
-		"@auth/prisma-adapter": "^2.7.4",
+		"@auth/prisma-adapter": "^2.7.2",
 		"@aws-sdk/s3-request-presigner": "^3.842.0",
 		"@preact/signals-react": "^3.2.1",
 		"@repo/database": "*",
 		"dayjs": "^1.11.13",
 		"next": "15.3.5",
-		"next-auth": "^5.0.0-beta.25",
+		"next-auth": "^5.0.0-beta.29",
 		"next13-progressbar": "^1.2.2",
 		"react": "19.1.0",
 		"react-dom": "19.1.0",
@@ -23,7 +23,7 @@
 		"react-unstyled-pagination": "^1.0.4",
 		"sharp": "^0.34.2",
 		"uuid": "^11.1.0",
-		"zod": "^3.25.74"
+		"zod": "^3.25.75"
 	},
 	"devDependencies": {
 		"@tailwindcss/postcss": "^4.1.11",
