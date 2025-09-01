@@ -109,11 +109,17 @@ export function parseSearchParamsFilter<T extends ColumnsType>(
 			};
 
 			const filterValue = getFilterValue();
+			const filterObject: any = {
+				[operator]: filterValue,
+			};
+
+			// Only add mode for string operations
+			if (columnType === 'string' && filter.mode) {
+				filterObject.mode = filter.mode;
+			}
+
 			return {
-				[filter.name]: {
-					[operator]: filterValue,
-					mode: filter.mode,
-				},
+				[filter.name]: filterObject,
 			};
 		};
 		const newFilters: 'azure-users' extends T ? Prisma.AzureUsersWhereInput : Prisma.PortraitsWhereInput = {

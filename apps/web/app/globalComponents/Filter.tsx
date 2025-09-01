@@ -142,18 +142,20 @@ export function FilterComponent({ type }: { type: 'azure-users' | 'portrait' }) 
 						))}
 					</select>
 					<OperationSelect filter={filter} setFilters={setFilters} type={type} />
-					<select
-						className="select select-bordered select-sm w-full lg:w-fit"
-						value={filter.mode}
-						onChange={(value) => {
-							setFilters((filters) => {
-								return setFilterValue(filters, filter, 'mode', value.target.value);
-							});
-						}}
-					>
-						<option value={'insensitive'}>Insensitive</option>
-						<option value={'default'}>Default</option>
-					</select>
+					{getColumn(filter.name, type)?.type === 'string' && (
+						<select
+							className="select select-bordered select-sm w-full lg:w-fit"
+							value={filter.mode}
+							onChange={(value) => {
+								setFilters((filters) => {
+									return setFilterValue(filters, filter, 'mode', value.target.value);
+								});
+							}}
+						>
+							<option value={'insensitive'}>Insensitive</option>
+							<option value={'default'}>Default</option>
+						</select>
+					)}
 					{!(filter.operator === 'exists' || filter.operator === 'notExists') && (
 						<FilterInput filter={filter} setFilters={setFilters} type={type} />
 					)}
