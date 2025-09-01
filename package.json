@@ -11,16 +11,16 @@
 		"prisma:generateSql": "npm run prisma:generateSql -w @repo/database"
 	},
 	"dependencies": {
-		"@prisma/client": "6.11.1",
+		"@prisma/client": "6.15.0",
 		"database": "^0.0.2",
-		"dotenv-cli": "^8.0.0",
+		"dotenv-cli": "^10.0.0",
 		"prettier-plugin-sql-cst": "^0.13.0",
-		"prettier-plugin-tailwindcss": "^0.6.13"
+		"prettier-plugin-tailwindcss": "^0.6.14"
 	},
 	"devDependencies": {
 		"prettier": "^3.6.2",
-		"prisma": "6.11.1",
-		"turbo": "^2.5.4"
+		"prisma": "6.15.0",
+		"turbo": "^2.5.6"
 	},
 	"engines": {
 		"node": ">=20"
@@ -28,7 +28,7 @@
 	"prisma": {
 		"schema": "packages/database/prisma/schema.prisma"
 	},
-	"packageManager": "npm@11.4.2",
+	"packageManager": "npm@11.5.2",
 	"workspaces": [
 		"apps/*",
 		"packages/*"
