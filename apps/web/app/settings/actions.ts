@@ -8,12 +8,12 @@ import { z } from 'zod';
 
 const schema = z.object({
 	name: z.string().min(1).max(200).nullish(),
-	email: z.string().min(1).max(200).email().optional(),
+	email: z.email().min(1).max(200).optional(),
 	avatar: z.nullable(
 		z
 			.instanceof(File)
 			.refine((file) => file.type.startsWith('image/') || file.type === 'application/octet-stream', {
-				message: 'The thumbnail must be an image',
+				error: 'The thumbnail must be an image',
 			})
 			.transform((file) => (file.type === 'application/octet-stream' ? null : file)),
 	),
@@ -40,7 +40,7 @@ export async function updateProfile(prevState: FormState, formData: FormData): P
 		timezone: formData.get('timezone'),
 	});
 
-	if (!parse.success) return { success: false, message: parse.error.errors[0].message };
+	if (!parse.success) return { success: false, message: parse.error.message };
 	const { avatar, ...data } = parse.data;
 
 	let image: string | undefined = undefined;
