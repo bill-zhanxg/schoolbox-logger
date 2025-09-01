@@ -3,7 +3,7 @@
 	"version": "0.0.0",
 	"private": true,
 	"scripts": {
-		"dev": "dotenv -e ../../.env -c development next dev --turbopack",
+		"dev": "dotenv -e ../../.env -c development -- next dev --turbopack",
 		"build": "rimraf -g node_modules/{react,react-dom} && dotenv -e ../../.env -c production next build",
 		"start": "dotenv -e ../../.env -c production -- next start -p 3009",
 		"lint": "next lint"
