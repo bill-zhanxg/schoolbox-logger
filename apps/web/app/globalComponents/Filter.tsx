@@ -32,6 +32,30 @@ export function FilterComponent({ type }: { type: 'azure-users' | 'portrait' }) 
 						mode: 'insensitive',
 						value: '',
 					},
+					{
+						id: v4(),
+						parentOperator: 'and',
+						name: 'department',
+						operator: 'contains',
+						mode: 'insensitive',
+						value: '',
+					},
+					{
+						id: v4(),
+						parentOperator: 'and',
+						name: 'city',
+						operator: 'contains',
+						mode: 'insensitive',
+						value: '',
+					},
+					{
+						id: v4(),
+						parentOperator: 'and',
+						name: 'accountEnabled',
+						operator: 'contains',
+						mode: 'insensitive',
+						value: '',
+					},
 				];
 			case 'portrait':
 				return [
@@ -93,7 +117,7 @@ export function FilterComponent({ type }: { type: 'azure-users' | 'portrait' }) 
 							id: v4(),
 							parentOperator: 'and',
 							name: 'id',
-							operator: 'is',
+							operator: 'contains',
 							mode: 'insensitive',
 							value: '',
 						},
