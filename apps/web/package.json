@@ -3,7 +3,7 @@
 	"version": "0.0.0",
 	"private": true,
 	"scripts": {
-		"dev": "dotenv -e ../../.env -c development next dev",
+		"dev": "dotenv -e ../../.env -c development next dev --turbopack",
 		"build": "rimraf -g node_modules/{react,react-dom} && dotenv -e ../../.env -c production next build",
 		"start": "dotenv -e ../../.env -c production -- next start -p 3009",
 		"lint": "next lint"
@@ -14,7 +14,7 @@
 		"@preact/signals-react": "^3.3.0",
 		"@repo/database": "*",
 		"dayjs": "^1.11.18",
-		"next": "15.3.5",
+		"next": "15.5.2",
 		"next-auth": "^5.0.0-beta.29",
 		"next13-progressbar": "^1.2.2",
 		"react": "19.1.1",
