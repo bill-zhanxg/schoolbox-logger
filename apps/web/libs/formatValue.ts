@@ -59,6 +59,7 @@ export const ParseFilterSchema = z.array(
 		parentOperator: z.string(),
 		mode: z.enum(['insensitive', 'default']),
 		value: z.string(),
+		not: z.boolean(),
 	}),
 );
 export type ParseFilters = z.infer<typeof ParseFilterSchema>;
@@ -82,19 +83,20 @@ export function parseSearchParamsFilter<T extends ColumnsType>(
 			const operator = filter.operator;
 			const columnType = columns.find((column) => column.name === filter.name)?.type;
 
-			if (!columnType || !filter.value) return {};
+			if (!columnType) return {};
 
+			// Handle null operator (doesn't require a value)
 			if (operator === 'null') {
-				return { [filter.name]: null };
+				const nullFilter = { [filter.name]: null };
+				return filter.not ? { NOT: nullFilter } : nullFilter;
 			}
-			if (operator === 'notNull') {
-				return { [filter.name]: { not: null } };
-			}
+
+			// For other operators, require a value
+			if (!filter.value) return {};
 
 			const allowedOperators = getOperators(type, filter.name).map((operator) => operator.value);
 			if (!allowedOperators.includes(operator)) return {};
 
-			if (operator === '$exists' || operator === '$notExists') return { [operator]: filter.name };
 			const getFilterValue = () => {
 				switch (columnType) {
 					case 'bool':
@@ -118,9 +120,12 @@ export function parseSearchParamsFilter<T extends ColumnsType>(
 				filterObject.mode = filter.mode;
 			}
 
-			return {
+			const baseFilter = {
 				[filter.name]: filterObject,
 			};
+
+			// Wrap in NOT if the not flag is true
+			return filter.not ? { NOT: baseFilter } : baseFilter;
 		};
 		const newFilters: 'azure-users' extends T ? Prisma.AzureUsersWhereInput : Prisma.PortraitsWhereInput = {
 			AND: allFilters.map((filter) => getFilterColumn(filter)).filter((filter) => !isEmpty(filter)),

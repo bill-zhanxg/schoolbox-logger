@@ -36,10 +36,8 @@ export const portraitColumns = [
 
 export const stringOperators = [
 	{ value: 'equals', label: 'equals' },
-	{ value: 'not', label: 'not' },
 	{ value: 'contains', label: 'contains' },
 	{ value: 'null', label: 'is null' },
-	{ value: 'notNull', label: 'is not null' },
 	{ value: 'startsWith', label: 'starts with' },
 	{ value: 'endsWith', label: 'ends with' },
 	{ value: 'gt', label: 'is greater than' },
@@ -49,20 +47,15 @@ export const stringOperators = [
 ];
 export const boolOperators = [
 	{ value: 'equals', label: 'equals' },
-	{ value: 'not', label: 'not' },
 	{ value: 'null', label: 'is null' },
-	{ value: 'notNull', label: 'is not null' },
 ];
 export const multipleOperators = [
 	{ value: 'has', label: 'has' },
 	{ value: 'null', label: 'is null' },
-	{ value: 'notNull', label: 'is not null' },
 ];
 export const datetimeOperators = [
 	{ value: 'is', label: 'is' },
-	{ value: 'not', label: 'not' },
 	{ value: 'null', label: 'is null' },
-	{ value: 'notNull', label: 'is not null' },
 	{ value: 'gt', label: 'is greater than' },
 	{ value: 'gte', label: 'is greater than or equal to' },
 	{ value: 'lt', label: 'is less than' },
@@ -70,9 +63,7 @@ export const datetimeOperators = [
 ];
 export const integerOperators = [
 	{ value: 'is', label: 'is' },
-	{ value: 'not', label: 'not' },
 	{ value: 'null', label: 'is null' },
-	{ value: 'notNull', label: 'is not null' },
 	{ value: 'gt', label: 'is greater than' },
 	{ value: 'gte', label: 'is greater than or equal to' },
 	{ value: 'lt', label: 'is less than' },

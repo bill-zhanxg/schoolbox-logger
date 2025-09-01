@@ -16,6 +16,7 @@ type Filter = {
 	operator: string;
 	mode: 'insensitive' | 'default';
 	value: string;
+	not: boolean;
 };
 
 export function FilterComponent({ type }: { type: 'azure-users' | 'portrait' }) {
@@ -31,6 +32,7 @@ export function FilterComponent({ type }: { type: 'azure-users' | 'portrait' }) 
 						operator: 'contains',
 						mode: 'insensitive',
 						value: '',
+						not: false,
 					},
 					{
 						id: v4(),
@@ -39,6 +41,7 @@ export function FilterComponent({ type }: { type: 'azure-users' | 'portrait' }) 
 						operator: 'contains',
 						mode: 'insensitive',
 						value: '',
+						not: false,
 					},
 					{
 						id: v4(),
@@ -47,6 +50,7 @@ export function FilterComponent({ type }: { type: 'azure-users' | 'portrait' }) 
 						operator: 'contains',
 						mode: 'insensitive',
 						value: '',
+						not: false,
 					},
 					{
 						id: v4(),
@@ -55,6 +59,7 @@ export function FilterComponent({ type }: { type: 'azure-users' | 'portrait' }) 
 						operator: 'contains',
 						mode: 'insensitive',
 						value: '',
+						not: false,
 					},
 				];
 			case 'portrait':
@@ -66,6 +71,7 @@ export function FilterComponent({ type }: { type: 'azure-users' | 'portrait' }) 
 						operator: 'contains',
 						mode: 'insensitive',
 						value: '',
+						not: false,
 					},
 				];
 			default:
@@ -120,6 +126,7 @@ export function FilterComponent({ type }: { type: 'azure-users' | 'portrait' }) 
 							operator: 'contains',
 							mode: 'insensitive',
 							value: '',
+							not: false,
 						},
 					])
 				}
@@ -166,6 +173,19 @@ export function FilterComponent({ type }: { type: 'azure-users' | 'portrait' }) 
 						))}
 					</select>
 					<OperationSelect filter={filter} setFilters={setFilters} type={type} />
+					<label className="flex items-center gap-2 whitespace-nowrap">
+						<input
+							type="checkbox"
+							className="checkbox checkbox-sm"
+							checked={filter.not}
+							onChange={(e) => {
+								setFilters((filters) => {
+									return setFilterValue(filters, filter, 'not', e.target.checked.toString());
+								});
+							}}
+						/>
+						<span className="text-sm">Not</span>
+					</label>
 					{getColumn(filter.name, type)?.type === 'string' && (
 						<select
 							className="select select-bordered select-sm w-full lg:w-fit"
@@ -180,9 +200,7 @@ export function FilterComponent({ type }: { type: 'azure-users' | 'portrait' }) 
 							<option value={'default'}>Default</option>
 						</select>
 					)}
-					{!(filter.operator === 'exists' || filter.operator === 'notExists') && (
-						<FilterInput filter={filter} setFilters={setFilters} type={type} />
-					)}
+					<FilterInput filter={filter} setFilters={setFilters} type={type} />
 				</div>
 			))}
 		</div>
@@ -191,10 +209,11 @@ export function FilterComponent({ type }: { type: 'azure-users' | 'portrait' }) 
 
 function setFilterValue(filters: Filter[], filter: Filter, key: keyof Filter, value: string) {
 	const index = filters.findIndex((f) => f.id === filter.id);
-	if (filter[key] === value) return filters;
+	const newValue = key === 'not' ? value === 'true' : value;
+	if (filter[key] === newValue) return filters;
 	filters[index] = {
 		...filters[index],
-		[key]: value,
+		[key]: newValue,
 	};
 	return [...filters];
 }
