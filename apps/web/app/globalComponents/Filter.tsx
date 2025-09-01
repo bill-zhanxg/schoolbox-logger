@@ -276,7 +276,7 @@ function FilterInput({
 			<div className="join w-40">
 				<button
 					type="button"
-					className={`btn btn-sm join-item w-1/2${filter.value === 'true' ? 'btn-primary' : ''}`}
+					className={`btn btn-sm join-item w-1/2 ${filter.value === 'true' ? 'btn-primary' : ''}`}
 					onClick={() => {
 						setFilters((filters) => {
 							return setFilterValue(filters, filter, 'value', 'true');
@@ -287,7 +287,7 @@ function FilterInput({
 				</button>
 				<button
 					type="button"
-					className={`btn btn-sm join-item w-1/2${filter.value === 'false' ? 'btn-primary' : ''}`}
+					className={`btn btn-sm join-item w-1/2 ${filter.value === 'false' ? 'btn-primary' : ''}`}
 					onClick={() => {
 						setFilters((filters) => {
 							return setFilterValue(filters, filter, 'value', 'false');
