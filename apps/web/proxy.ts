@@ -1,7 +1,7 @@
 import { auth } from '@/libs/auth';
 import { NextResponse, type NextRequest } from 'next/server';
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
 	const session = await auth();
 	if (!session)
 		return NextResponse.redirect(
