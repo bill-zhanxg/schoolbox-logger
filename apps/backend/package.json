@@ -5,7 +5,7 @@
 	"main": "./dist/index.js",
 	"scripts": {
 		"dev": "dotenv -e ../../.env -c development -- bun --watch --env-file=.env.development run src/index.ts",
-		"build": "dotenv -e ../../.env -c production npm run clean && tsc",
+		"build": "dotenv -e ../../.env -c production npm run clean && npx tsc",
 		"start": "dotenv -e ../../.env -c production -- bun --env-file=.env.production run dist/index.js",
 		"clean": "rimraf dist"
 	},
@@ -30,7 +30,6 @@
 		"@types/node": "^24.9.2",
 		"rimraf": "^6.1.0",
 		"ts-node-dev": "^2.0.0",
-		"tsc": "^2.0.4",
 		"typescript": "^5.9.3"
 	},
 	"engines": {
