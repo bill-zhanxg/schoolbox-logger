@@ -5,7 +5,7 @@
 	"main": "./dist/index.js",
 	"scripts": {
 		"dev": "dotenv -e ../../.env -c development -- bun --watch --env-file=.env.development run src/index.ts",
-		"build": "dotenv -e ../../.env -c production npm run clean && npx tsc",
+		"build": "dotenv -e ../../.env -c production npm run clean && tsc",
 		"start": "dotenv -e ../../.env -c production -- bun --env-file=.env.production run dist/index.js",
 		"clean": "rimraf dist"
 	},
