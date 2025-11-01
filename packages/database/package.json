@@ -10,15 +10,15 @@
 		"prisma:generateSql": "dotenv -e ../../.env -c development -- prisma generate --sql"
 	},
 	"dependencies": {
-		"@prisma/adapter-neon": "^6.15.0",
-		"@prisma/client": "^6.15.0"
+		"@prisma/adapter-neon": "^6.18.0",
+		"@prisma/client": "^6.18.0"
 	},
 	"devDependencies": {
-		"dotenv-cli": "^10.0.0",
-		"eslint": "^9.34.0",
-		"prisma": "^6.15.0",
+		"dotenv-cli": "^11.0.0",
+		"eslint": "^9.39.0",
+		"prisma": "^6.18.0",
 		"tsc": "^2.0.4",
-		"typescript": "5.9.2"
+		"typescript": "5.9.3"
 	},
 	"prisma": {
 		"schema": "./prisma"
