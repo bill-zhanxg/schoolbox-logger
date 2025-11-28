@@ -68,7 +68,7 @@ export function ManageData() {
 							name="schoolbox-end-id"
 							placeholder="End ID"
 							className="input input-bordered w-1/3"
-							defaultValue={11600}
+							defaultValue={12642}
 						/>
 					</div>
 					<Submit value="schoolbox">Get Schoolbox Data</Submit>
