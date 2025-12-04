@@ -14,7 +14,7 @@
 		"@preact/signals-react": "^3.3.1",
 		"@repo/database": "*",
 		"dayjs": "^1.11.19",
-		"next": "16.0.1",
+		"next": "16.0.7",
 		"next-auth": "^5.0.0-beta.30",
 		"next13-progressbar": "^1.2.2",
 		"react": "19.2.0",
